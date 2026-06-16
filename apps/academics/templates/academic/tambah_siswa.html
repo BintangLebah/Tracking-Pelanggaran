@@ -1,0 +1,531 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah Siswa Baru - V-Track</title>
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --border: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --navbar-bg: rgba(15,23,42,0.85);
+            --input-bg: #0f172a;
+            --hover-bg: rgba(16,185,129,0.08);
+        }
+        #mode-toggle:checked ~ .page-wrapper {
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --border: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #334155;
+            --text-muted: #64748b;
+            --navbar-bg: rgba(248,250,252,0.85);
+            --input-bg: #f1f5f9;
+            --hover-bg: rgba(16,185,129,0.06);
+        }
+        body { font-family: 'Inter', system-ui, sans-serif; margin: 0; }
+        a { text-decoration: none; color: inherit; }
+
+        /* ===== MODE TOGGLE ===== */
+        .toggle-thumb { transition: left 0.3s cubic-bezier(0.4,0,0.2,1); }
+        #mode-toggle:checked ~ .page-wrapper .toggle-thumb { left: 29px; }
+        .thumb-sun { display: none; }
+        #mode-toggle:checked ~ .page-wrapper .thumb-sun { display: block; }
+        .thumb-moon { display: block; }
+        #mode-toggle:checked ~ .page-wrapper .thumb-moon { display: none; }
+
+        /* ===== GLOW ===== */
+        @keyframes glow-pulse {
+            0%, 100% { opacity: 0.4; transform: translate(0,0) scale(1); }
+            50% { opacity: 0.7; transform: translate(0,0) scale(1.05); }
+        }
+        .bg-glow { animation: glow-pulse 8s ease-in-out infinite; }
+
+        /* ===== NAVBAR ===== */
+        .back-btn { transition: background 0.15s, color 0.15s; }
+        .back-btn:hover { background: var(--hover-bg); color: var(--text-primary); }
+
+        /* ===== INPUT ===== */
+        .input-field {
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            height: 2.75rem;
+            padding-top: 0;
+            padding-right: 1rem;
+            padding-bottom: 0;
+            padding-left: 1rem;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            width: 100%;
+        }
+        .input-field::placeholder { color: var(--text-muted); }
+        .input-field:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16,185,129,0.15);
+        }
+        /* Fix date input icon color */
+        .input-field::-webkit-calendar-picker-indicator { filter: invert(0.6); cursor: pointer; }
+        #mode-toggle:checked ~ .page-wrapper .input-field::-webkit-calendar-picker-indicator { filter: none; }
+
+        /* ===== LABEL ===== */
+        .field-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 0.375rem;
+        }
+        .required-star { color: #ef4444; margin-left: 1px; }
+
+        /* ===== GENDER TOGGLE ===== */
+        .gender-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            height: 2.75rem;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: border-color 0.15s, background 0.15s, color 0.15s;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            background: transparent;
+        }
+        .gender-btn:hover { background: var(--hover-bg); color: var(--text-secondary); }
+        #gender-l:checked ~ .form-card .gl {
+            border-color: #10b981;
+            background: rgba(16,185,129,0.1);
+            color: #10b981;
+            font-weight: 600;
+        }
+        #gender-p:checked ~ .form-card .gp {
+            border-color: #10b981;
+            background: rgba(16,185,129,0.1);
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        /* ===== SELECT ===== */
+        .select-field {
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            height: 2.75rem;
+            padding-top: 0;
+            padding-right: 2.25rem;
+            padding-bottom: 0;
+            padding-left: 1rem;
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            width: 100%;
+        }
+        .select-field:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16,185,129,0.15);
+        }
+
+        /* ===== UPLOAD ===== */
+        .upload-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 2rem 1rem;
+            border: 2px dashed var(--border);
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: border-color 0.15s, background 0.15s;
+            background: transparent;
+        }
+        .upload-box:hover {
+            border-color: #10b981;
+            background: var(--hover-bg);
+        }
+        .upload-preview {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            border: 2px solid #10b981;
+            border-radius: 0.75rem;
+            background: rgba(16,185,129,0.05);
+        }
+        #has-foto:checked ~ .form-card .upload-box-wrap .ub-hide { display: none; }
+        #has-foto:checked ~ .form-card .upload-box-wrap .ub-show { display: flex; }
+
+        /* ===== BUTTONS ===== */
+        .btn-emerald {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: #ffffff;
+            transition: opacity 0.15s, transform 0.15s, box-shadow 0.15s;
+        }
+        .btn-emerald:hover {
+            opacity: 0.92;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px -3px rgba(16,185,129,0.4);
+        }
+        .btn-outline {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            transition: background 0.15s, color 0.15s, border-color 0.15s;
+        }
+        .btn-outline:hover {
+            background: var(--hover-bg);
+            color: var(--text-primary);
+            border-color: var(--text-muted);
+        }
+        /* preview close button */
+        .preview-close {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            background: rgba(0,0,0,0.45);
+            color: #fff;
+            width: 28px;
+            height: 28px;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            line-height: 1;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <input type="checkbox" id="mode-toggle" class="hidden" aria-hidden="true">
+
+    <div class="page-wrapper min-h-screen relative" style="background: var(--bg);">
+
+        <div class="bg-glow pointer-events-none fixed top-[-200px] right-[-200px] w-[550px] h-[550px] rounded-full z-0"
+             style="background: radial-gradient(circle, rgba(16,185,129,0.04) 0%, transparent 70%);"></div>
+        <div class="bg-glow pointer-events-none fixed bottom-[-150px] left-[-150px] w-[400px] h-[400px] rounded-full z-0"
+             style="background: radial-gradient(circle, rgba(16,185,129,0.025) 0%, transparent 70%); animation-delay: -4s;"></div>
+
+        <!-- ===== NAVBAR ===== -->
+        <header class="sticky top-0 z-20 flex items-center justify-between px-4 md:px-6 border-b"
+                style="background: var(--navbar-bg); border-color: var(--border); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); height: 64px;">
+            <div class="flex items-center gap-3">
+                <a href="{% if kelas %}{% url 'academic:data_siswa' %}?kelas={{ kelas.pk }}{% else %}{% url 'academic:data_siswa' %}{% endif %}" class="back-btn h-11 flex items-center gap-2 px-3 rounded-lg"
+                   style="color: var(--text-muted);" aria-label="Kembali">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                    <span class="text-sm font-medium">Kembali</span>
+                </a>
+                <h1 class="text-lg font-bold" style="color: var(--text-primary);">{% if siswa %}Edit Siswa{% else %}Tambah Siswa Baru{% endif %}</h1>
+            </div>
+            <div class="flex items-center gap-2">
+                <label for="mode-toggle"
+                       class="relative cursor-pointer flex items-center ml-1"
+                       aria-label="Ganti tema tampilan">
+                    <div class="relative w-[56px] h-[30px] rounded-full transition-colors duration-300 shadow-inner"
+                         style="background: var(--border);">
+                        <span class="toggle-thumb absolute top-[3px] left-[3px] w-6 h-6 rounded-full z-10 flex items-center justify-center shadow-md"
+                              style="background: linear-gradient(135deg, #059669, #10b981);">
+                            <span class="thumb-moon text-[11px] leading-none">🌙</span>
+                            <span class="thumb-sun text-[11px] leading-none">☀️</span>
+                        </span>
+                    </div>
+                </label>
+            </div>
+        </header>
+
+        <!-- ===== KONTEN ===== -->
+        <main class="relative z-10 p-4 md:p-6 lg:p-8">
+
+            <form method="post" action="{% if siswa %}{% url 'academic:edit_siswa' siswa.pk %}{% elif kelas %}{% url 'academic:tambah_siswa_kelas' kelas.pk %}{% else %}{% url 'academic:tambah_siswa' %}{% endif %}" enctype="multipart/form-data">
+
+            <!-- Hidden radio inputs (siblings dari .form-card) -->
+            <input type="radio" name="gender" id="gender-l" value="L" class="hidden" aria-hidden="true"
+                {% if form_data.gender %}{% if form_data.gender == 'L' %}checked{% endif %}{% elif siswa %}{% if siswa.jenis_kelamin == 'L' %}checked{% endif %}{% else %}checked{% endif %}>
+            <input type="radio" name="gender" id="gender-p" value="P" class="hidden" aria-hidden="true"
+                {% if form_data.gender %}{% if form_data.gender == 'P' %}checked{% endif %}{% elif siswa %}{% if siswa.jenis_kelamin == 'P' %}checked{% endif %}{% endif %}>
+            <input type="checkbox" id="has-foto" class="hidden" aria-hidden="true"
+                {% if siswa and siswa.foto %}checked{% endif %}>
+
+            <!-- ===== CARD FORM ===== -->
+            <div class="form-card rounded-xl border p-5 md:p-8 mx-auto" style="background: var(--card); border-color: var(--border); max-width: 640px;">
+                    {% csrf_token %}
+                    {% if siswa %}
+                        <input type="hidden" name="student_id" value="{{ siswa.pk }}">
+                        <input type="hidden" name="is_edit" value="1">
+                    {% endif %}
+                    {% if kelas and not siswa %}
+                        <input type="hidden" name="kelas_id" value="{{ kelas.pk }}">
+                    {% endif %}
+
+                    <!-- Dua kolom -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+
+                        <!-- ========================
+                             KOLOM KIRI
+                             ======================== -->
+                        <div class="space-y-5">
+
+                            <!-- NIS -->
+                            <div>
+                                <label for="nis" class="field-label">
+                                    NIS <span class="required-star">*</span>
+                                </label>
+                                <input type="text" id="nis" name="nis" required
+                                       class="input-field" placeholder="Nomor Induk Siswa"
+                                       value="{% if form_data.nis %}{{ form_data.nis }}{% elif siswa %}{{ siswa.nis }}{% else %}{% endif %}">
+                            </div>
+
+                            <!-- Nama Lengkap -->
+                            <div>
+                                <label for="nama" class="field-label">
+                                    Nama Lengkap <span class="required-star">*</span>
+                                </label>
+                                <input type="text" id="nama" name="nama" required
+                                       class="input-field" placeholder="Masukkan nama lengkap siswa"
+                                       value="{% if form_data.nama %}{{ form_data.nama }}{% elif siswa %}{{ siswa.nama }}{% else %}{% endif %}">
+                            </div>
+
+                            <!-- Jenis Kelamin (toggle buttons) -->
+                            <div>
+                                <label class="field-label">
+                                    Jenis Kelamin <span class="required-star">*</span>
+                                </label>
+                                <div class="flex gap-2">
+                                    <label for="gender-l" class="gender-btn gl">
+                                        <i class="fa-solid fa-mars text-base"></i>
+                                        <span>Laki-laki</span>
+                                    </label>
+                                    <label for="gender-p" class="gender-btn gp">
+                                        <i class="fa-solid fa-venus text-base"></i>
+                                        <span>Perempuan</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Tanggal Lahir -->
+                            <div>
+                                <label for="tgl-lahir" class="field-label">Tanggal Lahir</label>
+                                <input type="date" id="tgl-lahir" name="tgl_lahir"
+                                       class="input-field"
+                                       value="{% if form_data.tgl_lahir %}{{ form_data.tgl_lahir }}{% elif siswa.tanggal_lahir %}{{ siswa.tanggal_lahir|date:'Y-m-d' }}{% endif %}">
+                            </div>
+                            <div>
+                                <label for="kelas" class="field-label">Kelas</label>
+                                <div class="relative">
+                                    {% comment %} Pilihan kelas: gunakan nilai form_data jika ada, else siswa.kelas, else preselect kelas context {% endcomment %}
+                                    <select id="kelas" name="kelas" class="select-field" required>
+                                        <option value="" disabled {% if not form_data.kelas and not siswa and not kelas %}selected{% endif %}>Pilih Kelas</option>
+                                        {% for k in kelas_options %}
+                                            <option value="{{ k.pk }}"
+                                                {% if form_data.kelas %}
+                                                    {% if form_data.kelas == k.pk|stringformat:"s" %}selected{% endif %}
+                                                {% elif siswa %}
+                                                    {% if siswa.kelas and siswa.kelas.pk == k.pk %}selected{% endif %}
+                                                {% elif kelas %}
+                                                    {% if kelas.pk == k.pk %}selected{% endif %}
+                                                {% endif %}>{{ k.nama_kelas }} {{ k.tahun_ajaran }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[10px] pointer-events-none" style="color: var(--text-muted);"></i>
+                                </div>
+                                {% if errors and errors.kelas %}
+                                    <p class="text-xs mt-1" style="color:#ef4444;">{{ errors.kelas }}</p>
+                                {% endif %}
+                            </div>
+
+                        </div>
+
+                        <!-- ========================
+                             KOLOM KANAN (placeholder tetap untuk layout)
+                             ======================== -->
+                        <div class="space-y-5 md:space-y-5">
+
+                            <!-- Status Keorganisasian -->
+                            <div>
+                                <label for="status_keorganisasian" class="field-label">
+                                    Status Keorganisasian <span class="required-star">*</span>
+                                </label>
+                                <div class="relative">
+                                    {% with status_value=form_data.status_keorganisasian|default:'' %}
+                                    <select id="status_keorganisasian" name="status_keorganisasian" required class="select-field">
+                                        <option value="" disabled {% if status_value == '' and not siswa %}selected{% endif %}>Pilih status</option>
+                                        <option value="bukan_anggota"
+                                            {% if status_value == 'bukan_anggota' %}
+                                                selected
+                                            {% elif status_value == '' and siswa and siswa.organisasi == 'bukan_anggota' %}
+                                                selected
+                                            {% endif %}>Bukan Anggota</option>
+                                        <option value="osis"
+                                            {% if status_value == 'osis' %}
+                                                selected
+                                            {% elif status_value == '' and siswa and siswa.organisasi == 'osis' %}
+                                                selected
+                                            {% endif %}>Anggota OSIS</option>
+                                        <option value="mpk" {% if status_value == 'mpk' %}selected{% endif %}>Anggota MPK</option>
+                                        </select>
+                                    {% endwith %}
+                                    <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[10px] pointer-events-none" style="color: var(--text-muted);"></i>
+                                </div>
+                            </div>
+
+                            <!-- Spacer agar tinggi seimbang dengan kolom kiri -->
+                            <div class="hidden md:block" style="height: 2.75rem;" aria-hidden="true"></div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- ========================
+                         UPLOAD FOTO (FULL-WIDTH, di bawah grid & di atas tombol)
+                         ======================== -->
+                    <div class="mt-6">
+                        <label class="field-label">Foto Siswa</label>
+                        <div class="upload-box-wrap">
+                            <label for="foto-input" class="ub-hide upload-box block" id="foto-upload-label">
+                                <input type="file" id="foto-input" name="foto" class="hidden" accept=".jpg,.jpeg,.png">
+                                <i class="fa-regular fa-image text-3xl" style="color: var(--text-muted);"></i>
+                                <p class="text-sm font-medium" style="color: var(--text-secondary);">Klik untuk upload foto siswa</p>
+                                <p class="text-xs" style="color: var(--text-muted);">Format: JPG, PNG — Maks: 2MB</p>
+                            </label>
+
+                            <div class="ub-show upload-preview" id="foto-preview" style="display:none; position:relative;">
+                                <button type="button" id="foto-clear-btn" class="preview-close" aria-label="Hapus foto">✕</button>
+                                <div style="display:flex; gap:12px; align-items:center;">
+                                    <div class="w-20 h-20 rounded-full flex-shrink-0 flex items-center justify-center"
+                                         style="background: var(--input-bg); border: 2px solid var(--border); overflow:hidden;">
+                                        <img id="foto-preview-img" src="{% if siswa and siswa.foto %}{{ siswa.foto.url }}{% else %}#{% endif %}" alt="preview" style="width:100%; height:100%; object-fit:cover; display:block;">
+                                    </div>
+                                    <div class="ml-4 text-left">
+                                        <p class="text-sm font-medium" id="foto-filename" style="color: var(--text-primary);">{% if siswa and siswa.foto %}{{ siswa.foto.name|truncatechars:30 }}{% else %}nama-file.jpg{% endif %}</p>
+                                        <p class="text-xs mt-0.5" id="foto-filesize" style="color: var(--text-muted);">{% if siswa and siswa.foto %}Foto existing{% else %}245 KB{% endif %}</p>
+                                        <label for="foto-input" class="text-xs font-semibold mt-1.5 inline-block cursor-pointer" style="color: #10b981;">
+                                            Ganti foto
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========================
+                         TOMBOL BAWAH
+                         ======================== -->
+                    <div class="flex flex-col gap-3 mt-8 pt-6" style="border-top: 1px solid var(--border);">
+                        <button type="submit"
+                                class="btn-emerald h-11 rounded-lg text-sm font-semibold cursor-pointer flex items-center justify-center gap-2 w-full">
+                            <i class="fa-solid fa-floppy-disk text-xs"></i>
+                            Simpan Siswa
+                        </button>
+                        <button type="button"
+                                class="btn-outline h-11 rounded-lg text-sm font-semibold cursor-pointer flex items-center justify-center gap-2 w-full">
+                            Batal
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+
+            <!-- ========================
+                 REFERENSI (tersembunyi)
+                 ======================== -->
+            <div style="display: none;" aria-hidden="true">
+                <div style="margin-top: 1.5rem; padding: 1rem; border: 1px dashed var(--border); border-radius: 0.75rem; max-width: 640px; margin-left: auto; margin-right: auto;">
+                    <p style="font-size: 0.6875rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem;">
+                        Referensi Implementasi
+                    </p>
+                    <p style="font-size: 0.5625rem; color: var(--text-muted); line-height: 1.7;">
+                        <strong style="color: var(--text-secondary);">Toggle Jenis Kelamin:</strong><br>
+                        Radio input tersembunyi (#gender-l, #gender-p) ditempatkan sebagai sibling dari .form-card.<br>
+                        Saat dipilih, class .gl atau .gp pada label mendapat border & background emerald via CSS selector.<br>
+                        Backend cukup membaca name="gender" dari radio yang terpilih.<br><br>
+                        <strong style="color: var(--text-secondary);">Preview Foto:</strong><br>
+                        Checkbox #has-foto tersembunyi. Saat file dipilih, backend menambahkan class/atribut yang menandakan foto ada.<br>
+                        Ubah state dengan menambahkan checked pada #has-foto (untuk demo CSS-only).<br>
+                        .ub-hide disembunyikan saat #has-foto:checked, .ub-show ditampilkan saat #has-foto:checked.<br><br>
+                        <strong style="color: var(--text-secondary);">Spacer Kanan:</strong><br>
+                        Div tersembunyi di kolom kanan agar tinggi kedua kolom seimbang di desktop.
+                    </p>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function(){
+            const input = document.getElementById('foto-input');
+            const preview = document.getElementById('foto-preview');
+            const uploadLabel = document.getElementById('foto-upload-label');
+            const img = document.getElementById('foto-preview-img');
+            const filenameEl = document.getElementById('foto-filename');
+            const filesizeEl = document.getElementById('foto-filesize');
+            const clearBtn = document.getElementById('foto-clear-btn');
+            const hasFotoCheckbox = document.getElementById('has-foto');
+
+            function humanFileSize(size){
+                if(size === 0) return '0 B';
+                const i = Math.floor(Math.log(size) / Math.log(1024));
+                return (size / Math.pow(1024, i)).toFixed(i ? 1 : 0) + ['B','KB','MB','GB'][i];
+            }
+
+            if(!input) return;
+
+            // Initialize preview state on page load if siswa has existing foto
+            if(hasFotoCheckbox && hasFotoCheckbox.checked && img.src !== '#'){
+                uploadLabel.style.display = 'none';
+                preview.style.display = 'flex';
+            }
+
+            input.addEventListener('change', function(){
+                const file = this.files[0];
+                if(!file) return;
+                if(file.size > 2 * 1024 * 1024){
+                    alert('Ukuran file melebihi 2MB');
+                    this.value = '';
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function(evt){
+                    img.src = evt.target.result;
+                    filenameEl.textContent = file.name;
+                    filesizeEl.textContent = humanFileSize(file.size);
+                    uploadLabel.style.display = 'none';
+                    preview.style.display = 'flex';
+                };
+                reader.readAsDataURL(file);
+            });
+
+            clearBtn.addEventListener('click', function(){
+                input.value = '';
+                img.src = '#';
+                uploadLabel.style.display = '';
+                preview.style.display = 'none';
+            });
+        });
+    </script>
+
+</body>
+</html>

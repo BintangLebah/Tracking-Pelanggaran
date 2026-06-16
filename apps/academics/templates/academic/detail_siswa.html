@@ -1,0 +1,505 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Siswa - V-Track</title>
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --border: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --navbar-bg: rgba(15,23,42,0.85);
+            --table-head: rgba(15,23,42,0.5);
+            --input-bg: #0f172a;
+            --hover-bg: rgba(99,102,241,0.08);
+        }
+        #mode-toggle:checked ~ .page-wrapper {
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --border: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #334155;
+            --text-muted: #64748b;
+            --navbar-bg: rgba(248,250,252,0.85);
+            --table-head: rgba(248,250,252,0.8);
+            --input-bg: #f1f5f9;
+            --hover-bg: rgba(99,102,241,0.06);
+        }
+        body { font-family: 'Inter', system-ui, sans-serif; margin: 0; }
+        a { text-decoration: none; color: inherit; }
+
+        /* ===== MODE TOGGLE ===== */
+        .toggle-thumb { transition: left 0.3s cubic-bezier(0.4,0,0.2,1); }
+        #mode-toggle:checked ~ .page-wrapper .toggle-thumb { left: 29px; }
+        .thumb-sun { display: none; }
+        #mode-toggle:checked ~ .page-wrapper .thumb-sun { display: block; }
+        .thumb-moon { display: block; }
+        #mode-toggle:checked ~ .page-wrapper .thumb-moon { display: none; }
+
+        /* ===== TABEL ===== */
+        .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .table-wrap-6col table { min-width: 700px; }
+        .table-wrap-4col table { min-width: 480px; }
+        .table-wrap th {
+            background: var(--table-head);
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 12px 16px;
+            text-align: left;
+            white-space: nowrap;
+            border-bottom: 1px solid var(--border);
+        }
+        .table-wrap td {
+            color: var(--text-secondary);
+            font-size: 0.8125rem;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        .table-wrap tbody tr { transition: background 0.15s; }
+        .table-wrap tbody tr:hover { background: var(--hover-bg); }
+        .table-wrap tbody tr:last-child td { border-bottom: none; }
+
+        /* ===== GLOW ===== */
+        @keyframes glow-pulse {
+            0%, 100% { opacity: 0.4; transform: translate(0,0) scale(1); }
+            50% { opacity: 0.7; transform: translate(0,0) scale(1.05); }
+        }
+        .bg-glow { animation: glow-pulse 8s ease-in-out infinite; }
+
+        /* ===== TOMBOL ===== */
+        .back-btn { transition: background 0.15s, color 0.15s; }
+        .back-btn:hover { background: var(--hover-bg); color: var(--text-primary); }
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: #ffffff;
+            transition: opacity 0.15s, transform 0.15s, box-shadow 0.15s;
+        }
+        .btn-primary:hover {
+            opacity: 0.92;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px -3px rgba(99,102,241,0.4);
+        }
+
+        /* ===== DEMO STATUS TOGGLE ===== */
+        #status-demo:checked ~ .page-wrapper .photo-ring { border-color: #f43f5e !important; }
+        #status-demo:checked ~ .page-wrapper .points-value { color: #ef4444 !important; }
+        #status-demo:checked ~ .page-wrapper .status-badge-normal { display: none !important; }
+        #status-demo:checked ~ .page-wrapper .status-badge-wajib { display: inline-flex !important; }
+        #status-demo:checked ~ .page-wrapper .demo-label-normal { display: none; }
+        #status-demo:checked ~ .page-wrapper .demo-label-wajib { display: inline; }
+        /* ===== AUTO WAJIB BK (berdasarkan poin) ===== */
+        .page-wrapper.wajib-bk .photo-ring { border-color: #f43f5e !important; }
+        .page-wrapper.wajib-bk .points-value { color: #ef4444 !important; }
+        .page-wrapper.wajib-bk .status-badge-normal { display: none !important; }
+        .page-wrapper.wajib-bk .status-badge-wajib { display: inline-flex !important; }
+        .demo-toggle-label {
+            cursor: pointer;
+            font-size: 0.6875rem;
+            color: var(--text-muted);
+            transition: color 0.15s;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+        .demo-toggle-label:hover { color: var(--text-secondary); }
+
+        /* ===== TAB SYSTEM ===== */
+        .tab-label {
+            cursor: pointer;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            border-bottom: 2px solid transparent;
+            transition: color 0.15s, border-color 0.15s;
+            white-space: nowrap;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .tab-label:hover { color: var(--text-primary); }
+
+        /* Default: tab riwayat aktif */
+        .tab-label[for="tab-riwayat"] {
+            border-bottom-color: #6366f1;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Saat tab history dipilih */
+        #tab-history:checked ~ .page-wrapper .tab-label[for="tab-history"] {
+            border-bottom-color: #6366f1;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        #tab-history:checked ~ .page-wrapper .tab-label[for="tab-riwayat"] {
+            border-bottom-color: transparent;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* Sembunyikan tombol & panel riwayat saat tab history aktif */
+        #tab-history:checked ~ .page-wrapper .action-add-btn { display: none; }
+        #tab-history:checked ~ .page-wrapper .tab-panel-riwayat { display: none; }
+        #tab-history:checked ~ .page-wrapper .tab-panel-history { display: block; }
+
+        /* Default: panel history tersembunyi via CSS (BUKAN inline style) */
+        .tab-panel-history { display: none; }
+
+        /* ===== BADGE ===== */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.2rem 0.6rem;
+            border-radius: 9999px;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .badge-ringan { background: rgba(34,197,94,0.15); color: #22c55e; }
+        .badge-sedang { background: rgba(234,179,8,0.15); color: #eab308; }
+        .badge-berat { background: rgba(239,68,68,0.15); color: #ef4444; }
+        .badge-menunggu { background: rgba(234,179,8,0.15); color: #eab308; }
+        .badge-disetujui { background: rgba(34,197,94,0.15); color: #22c55e; }
+        .badge-ditolak { background: rgba(239,68,68,0.15); color: #ef4444; }
+        .badge-langsung { background: rgba(99,102,241,0.15); color: #818cf8; }
+
+        .poin-merah { color: #ef4444 !important; font-weight: 700; }
+        .poin-hijau { color: #22c55e !important; font-weight: 700; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- ===== SEMUA CHECKBOX DI LUAR PAGE-WRAPPER ===== -->
+    <input type="checkbox" id="mode-toggle" class="hidden" aria-hidden="true">
+    <input type="checkbox" id="status-demo" class="hidden" aria-hidden="true">
+    <input type="radio" name="detail-tab" id="tab-riwayat" checked class="hidden" aria-hidden="true">
+    <input type="radio" name="detail-tab" id="tab-history" class="hidden" aria-hidden="true">
+
+    <!-- ===== PAGE WRAPPER ===== -->
+    <div class="page-wrapper min-h-screen relative {% if siswa.is_wajib_bk or wajib_by_points %}wajib-bk{% endif %}" style="background: var(--bg);">
+
+        <!-- Dekorasi latar -->
+        <div class="bg-glow pointer-events-none fixed top-[-200px] right-[-200px] w-[550px] h-[550px] rounded-full z-0"
+             style="background: radial-gradient(circle, rgba(99,102,241,0.045) 0%, transparent 70%);"></div>
+        <div class="bg-glow pointer-events-none fixed bottom-[-150px] left-[-150px] w-[400px] h-[400px] rounded-full z-0"
+             style="background: radial-gradient(circle, rgba(99,102,241,0.03) 0%, transparent 70%); animation-delay: -4s;"></div>
+
+        <!-- ===== NAVBAR ===== -->
+        <header class="sticky top-0 z-20 flex items-center justify-between px-4 md:px-6 border-b"
+                style="background: var(--navbar-bg); border-color: var(--border); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); height: 64px;">
+            <div class="flex items-center gap-3">
+                <a href="{% if kelas %}{% url 'academic:data_siswa' %}?kelas={{ kelas.pk }}{% else %}{% url 'academic:data_siswa' %}{% endif %}" class="back-btn h-11 flex items-center gap-2 px-3 rounded-lg"
+                   style="color: var(--text-muted);"
+                   aria-label="Kembali">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                    <span class="text-sm font-medium">Kembali</span>
+                </a>
+                <h1 class="text-lg font-bold" style="color: var(--text-primary);">Detail Siswa</h1>
+            </div>
+            <div class="flex items-center gap-2">
+                <label for="mode-toggle"
+                       class="relative cursor-pointer flex items-center ml-1"
+                       aria-label="Ganti tema tampilan">
+                    <div class="relative w-[56px] h-[30px] rounded-full transition-colors duration-300 shadow-inner"
+                         style="background: var(--border);">
+                        <span class="toggle-thumb absolute top-[3px] left-[3px] w-6 h-6 rounded-full z-10 flex items-center justify-center shadow-md"
+                              style="background: linear-gradient(135deg, #4f46e5, #818cf8);">
+                            <span class="thumb-moon text-[11px] leading-none">🌙</span>
+                            <span class="thumb-sun text-[11px] leading-none">☀️</span>
+                        </span>
+                    </div>
+                </label>
+            </div>
+        </header>
+
+        <!-- ===== KONTEN ===== -->
+        <main class="relative z-10 p-4 md:p-6 lg:p-8 max-w-6xl mx-auto">
+
+            <!-- ========================
+                 KARTU PROFIL SISWA
+                 ======================== -->
+            <section class="mb-6 md:mb-8">
+                <div class="rounded-xl border p-4 md:p-6 relative" style="background: var(--card); border-color: var(--border);">
+                        <!-- demo toggle removed; visual state now driven by siswa.is_wajib_bk or wajib_by_points -->
+                    <div class="flex flex-col md:flex-row gap-5 md:gap-8 items-center md:items-start">
+                        <!-- Foto (klik membuka lightbox gambar saja) -->
+                        <div class="flex-shrink-0">
+                            <button type="button" class="photo-lightbox-btn photo-ring w-24 h-24 rounded-full flex items-center justify-center text-4xl" 
+                                style="border: 4px solid #14b8a6; background: var(--input-bg); transition: border-color 0.3s; overflow: hidden; background-position:center; background-size:cover;"
+                                data-foto-url="{% if siswa.foto %}{{ siswa.foto.url }}{% else %}{% endif %}">
+                                {% if siswa.foto %}
+                                    <img src="{{ siswa.foto.url }}" alt="{{ siswa.nama }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                {% else %}
+                                    👤
+                                {% endif %}
+                            </button>
+                        </div>
+                        <!-- Info -->
+                        <div class="flex-1 text-center md:text-left min-w-0 w-full">
+                            <h2 class="text-xl md:text-2xl font-bold leading-tight" style="color: var(--text-primary);">{{ siswa.nama }}</h2>
+                            <p class="text-sm mt-0.5" style="color: var(--text-muted);">NIS: {{ siswa.nis }}</p>
+                            <div class="grid grid-cols-3 gap-3 mt-4">
+                                <div>
+                                    <p class="text-[11px] font-medium uppercase tracking-wide" style="color: var(--text-muted);">Kelas</p>
+                                    <p class="text-sm font-semibold mt-0.5" style="color: var(--text-secondary);">{% if siswa.kelas %}{{ siswa.kelas.nama_kelas }}{% else %}-{% endif %}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[11px] font-medium uppercase tracking-wide" style="color: var(--text-muted);">Jenis Kelamin</p>
+                                    <p class="text-sm font-semibold mt-0.5" style="color: var(--text-secondary);">{% if siswa.jenis_kelamin == 'L' %}Laki-laki{% elif siswa.jenis_kelamin == 'P' %}Perempuan{% else %}-{% endif %}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[11px] font-medium uppercase tracking-wide" style="color: var(--text-muted);">Tanggal Lahir</p>
+                                    <p class="text-sm font-semibold mt-0.5" style="color: var(--text-secondary);">{% if siswa.tanggal_lahir %}{{ siswa.tanggal_lahir|date:'d M Y' }}{% else %}-{% endif %}</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-col sm:flex-row items-center sm:items-end gap-3 sm:gap-4 mt-5 pt-5 border-t" style="border-color: var(--border);">
+                                <div class="text-center sm:text-left">
+                                    <p class="text-[11px] font-medium uppercase tracking-wide" style="color: var(--text-muted);">Total Poin Pelanggaran</p>
+                                    <p class="points-value text-4xl font-extrabold leading-none mt-1" style="color: #22c55e; transition: color 0.3s;">{{ siswa.total_poin }}</p>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    {% if siswa.is_wajib_bk %}
+                                        <span class="status-badge-wajib inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold"
+                                              style="background: rgba(244,63,94,0.15); color: #f43f5e;">
+                                            <span class="text-base leading-none">⚠️</span> WAJIB BK
+                                        </span>
+                                    {% else %}
+                                        <span class="status-badge-normal inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold"
+                                              style="background: rgba(34,197,94,0.15); color: #22c55e;">
+                                            <span class="text-base leading-none">✅</span> Normal
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================
+                 TAB NAVIGASI
+                 ======================== -->
+            <div class="flex border-b" style="border-color: var(--border);">
+                <label for="tab-riwayat" class="tab-label">📋 Riwayat Pelanggaran</label>
+                <label for="tab-history" class="tab-label">📊 History Poin Bulanan</label>
+            </div>
+
+            <!-- ========================
+                 TOMBOL TAMBAH (hanya tab Riwayat)
+                 ======================== -->
+            <div class="action-add-btn flex items-center justify-between mb-4 mt-4">
+                <div>
+                    <h2 class="text-base font-bold" style="color: var(--text-primary);">Daftar Pelanggaran</h2>
+                    <p class="text-xs mt-0.5" style="color: var(--text-muted);">Riwayat pelanggaran yang pernah dicatat untuk siswa ini</p>
+                </div>
+                <a href="{% url 'violation:input_pelanggaran' %}" type="button" class="btn-primary h-11 px-4 rounded-lg text-sm font-semibold cursor-pointer flex items-center gap-2 flex-shrink-0 ml-4">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    <span class="hidden sm:inline">Tambah Pelanggaran</span>
+                    <span class="sm:hidden">Tambah</span>
+                </a>
+            </div>
+
+            <!-- ========================
+                 TAB 1: RIWAYAT PELANGGARAN
+                 ======================== -->
+            <div class="tab-panel-riwayat">
+                <div class="rounded-xl border overflow-hidden" style="background: var(--card); border-color: var(--border);">
+                    <div class="table-wrap table-wrap-6col">
+                        <table class="w-full">
+                            <thead>
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>Jenis Pelanggaran</th>
+                                    <th>Kategori</th>
+                                    <th>Poin</th>
+                                    <th>Status</th>
+                                    <th>Dilaporkan Oleh</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for violation in pelanggaran_list %}
+                                <tr>
+                                    <td style="color: var(--text-primary); font-weight: 500;">{{ violation.tanggal_kejadian|date:'d M Y' }}</td>
+                                    <td>{{ violation.jenis_pelanggaran.nama }}</td>
+                                    <td><span class="badge badge-{{ violation.jenis_pelanggaran.kategori }}">{{ violation.jenis_pelanggaran.get_kategori_display }}</span></td>
+                                    <td style="font-weight: 600; color: var(--text-primary);">{{ violation.poin }}</td>
+                                    <td><span class="badge badge-{{ violation.status }}">{{ violation.get_status_display }}</span></td>
+                                    <td>{{ violation.dilaporkan_oleh.get_full_name|default:violation.dilaporkan_oleh.username }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                                        Tidak ada data pelanggaran untuk siswa ini
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================
+                 TAB 2: HISTORY POIN BULANAN
+                 ======================== -->
+            <div class="tab-panel-history">
+                <div class="mb-4 mt-4">
+                    <h2 class="text-base font-bold" style="color: var(--text-primary);">Rekap Poin Bulanan</h2>
+                    <p class="text-xs mt-0.5" style="color: var(--text-muted);">Akumulasi poin pelanggaran per bulan untuk siswa ini</p>
+                </div>
+                <div class="rounded-xl border overflow-hidden" style="background: var(--card); border-color: var(--border);">
+                    <div class="table-wrap table-wrap-4col">
+                        <table class="w-full">
+                            <thead>
+                                <tr>
+                                    <th>Periode</th>
+                                    <th>Total Poin</th>
+                                    <th>Jumlah Kasus</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for h in history_poin_list %}
+                                <tr>
+                                    <td style="color: var(--text-primary); font-weight: 500;">{{ h.label_periode }}</td>
+                                    <td class="{% if h.total_poin >= 75 %}poin-merah{% else %}poin-hijau{% endif %}">{{ h.total_poin }}</td>
+                                    <td style="font-weight: 600; color: var(--text-primary);">{{ h.jumlah_kasus }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                                        Tidak ada riwayat poin untuk siswa ini
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- PROFILE LIGHTBOX MODAL -->
+    <div id="profileModal" style="display:none; position:fixed; inset:0; left:0; top:0; width:100%; height:100%; z-index:9999; align-items:center; justify-content:center; display:flex;">
+        <div class="modal-backdrop" style="position:absolute; inset:0; background: rgba(2,6,23,0.6); z-index:9999;"></div>
+        <div class="modal-panel" style="position:relative; z-index:10001; width:100%; max-width:720px; margin:0 16px; border-radius:12px; box-shadow:0 10px 30px rgba(2,6,23,0.6); background: var(--card); border: 1px solid var(--border);">
+            <div class="p-4">
+                <button type="button" id="profileClose" class="absolute top-3 right-3 text-xl" style="color: var(--text-muted); background: transparent; border: none;">&times;</button>
+                <div class="flex items-center gap-4">
+                    <img id="modalFoto" src="" alt="foto" class="w-20 h-20 rounded-full object-cover" style="width:80px;height:80px;" />
+                    <div>
+                        <h3 id="modalNama" style="color: var(--text-primary); font-weight:700; margin:0;">Nama</h3>
+                        <p id="modalNis" style="color: var(--text-muted); margin:0;">NIS</p>
+                        <p id="modalKelas" style="color: var(--text-secondary); margin-top:6px;">Kelas</p>
+                    </div>
+                </div>
+                <div class="mt-4 grid grid-cols-2 gap-2">
+                    <div style="color: var(--text-muted);">Jenis Kelamin</div>
+                    <div id="modalJk" style="color: var(--text-primary); font-weight:600; text-align:right;"></div>
+                    <div style="color: var(--text-muted);">Organisasi</div>
+                    <div id="modalOrg" style="color: var(--text-primary); font-weight:600; text-align:right;"></div>
+                    <div style="color: var(--text-muted);">Total Poin</div>
+                    <div id="modalPoin" style="color: var(--text-primary); font-weight:700; text-align:right;"></div>
+                </div>
+                <div class="mt-4 flex justify-end gap-2">
+                    <a id="modalDetailLink" href="#" class="btn-primary h-9 px-3 rounded-lg text-sm font-semibold flex items-center gap-2">Lihat Detail</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- IMAGE LIGHTBOX (only photo) -->
+    <div id="imageModal" style="display:none; position:fixed; inset:0; left:0; top:0; width:100%; height:100%; z-index:10003; align-items:center; justify-content:center; display:flex;">
+        <div id="imageBackdrop" style="position:absolute; inset:0; background: rgba(2,6,23,0.85); z-index:10003;"></div>
+        <div style="position:relative; z-index:10005; max-width:1200px; width:100%; padding:24px; box-sizing:border-box;">
+            <button id="imageClose" type="button" style="position:absolute; right:8px; top:8px; z-index:10006; background:transparent; border:none; color:var(--text-muted); font-size:28px;">&times;</button>
+            <img id="lightboxImg" src="" alt="Foto Siswa" style="max-width:100%; max-height:80vh; display:block; margin:0 auto; border-radius:8px;" />
+        </div>
+    </div>
+
+</body>
+<script>
+// Profile modal logic (detail page)
+function openProfileModal(data){
+    document.getElementById('modalNama').textContent = data.nama || '-';
+    document.getElementById('modalNis').textContent = 'NIS: ' + (data.nis || '-');
+    document.getElementById('modalKelas').textContent = data.kelas || '-';
+    document.getElementById('modalJk').textContent = data.jk || '-';
+    document.getElementById('modalOrg').textContent = data.org || '-';
+    document.getElementById('modalPoin').textContent = data.poin || '0';
+    var foto = document.getElementById('modalFoto');
+    if(data.foto){ foto.src = data.foto; foto.style.display = 'block'; } else { foto.src = ''; foto.style.display = 'none'; }
+    document.getElementById('modalDetailLink').href = data.detail || '#';
+    document.getElementById('profileModal').style.display = 'flex';
+}
+function closeProfileModal(){ document.getElementById('profileModal').style.display = 'none'; }
+document.addEventListener('click', function(e){
+    // Only respond to genuine user-initiated events to avoid auto-opening on navigation
+    if(!e.isTrusted) return;
+
+    if(e.target.closest('.profile-open-btn')){
+        var btn = e.target.closest('.profile-open-btn');
+        openProfileModal({
+            nama: btn.getAttribute('data-nama'),
+            nis: btn.getAttribute('data-nis'),
+            kelas: btn.getAttribute('data-kelas'),
+            jk: btn.getAttribute('data-jk'),
+            org: btn.getAttribute('data-organisasi'),
+            poin: btn.getAttribute('data-poin'),
+            foto: btn.getAttribute('data-foto-url'),
+            detail: btn.getAttribute('data-detail-url')
+        });
+    }
+    // Photo lightbox on detail page: only show image
+    if(e.target.closest('.photo-lightbox-btn')){
+        var pbtn = e.target.closest('.photo-lightbox-btn');
+        var url = pbtn.getAttribute('data-foto-url');
+        var img = document.getElementById('lightboxImg');
+        if(!url){
+            // no photo — do nothing
+            return;
+        }
+        img.src = url;
+        img.style.display = 'block';
+        document.getElementById('imageModal').style.display = 'flex';
+    }
+    if(e.target.id === 'profileClose' || e.target.id === 'profileModal'){
+        closeProfileModal();
+    }
+});
+var _profileModal = document.getElementById('profileModal');
+if(_profileModal){
+    _profileModal.addEventListener('click', function(e){ if(e.target === this) closeProfileModal(); });
+}
+    // image lightbox close handlers
+    var _imageClose = document.getElementById('imageClose');
+    var _imageModal = document.getElementById('imageModal');
+    var _imageBackdrop = document.getElementById('imageBackdrop');
+    if(_imageClose){ _imageClose.addEventListener('click', function(){ if(_imageModal) _imageModal.style.display = 'none'; }); }
+    if(_imageBackdrop){ _imageBackdrop.addEventListener('click', function(){ if(_imageModal) _imageModal.style.display = 'none'; }); }
+    // allow closing with Escape key
+    document.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ if(_imageModal) _imageModal.style.display = 'none'; if(_profileModal) _profileModal.style.display = 'none'; } });
+
+    // Ensure modals are closed and lightbox image cleared on page load
+    (function(){
+        var img = document.getElementById('lightboxImg');
+        var imageModal = document.getElementById('imageModal');
+        var profileModal = document.getElementById('profileModal');
+        if(img){ img.src = ''; img.style.display = 'none'; }
+        if(imageModal){ imageModal.style.display = 'none'; }
+        if(profileModal){ profileModal.style.display = 'none'; }
+    })();
+</script>
+</html>

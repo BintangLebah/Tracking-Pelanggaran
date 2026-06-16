@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Pelanggaran - V-Track</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --border: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --sidebar-bg: #0f172a;
+            --navbar-bg: rgba(15,23,42,0.85);
+            --table-head: rgba(15,23,42,0.5);
+            --input-bg: #0f172a;
+            --hover-bg: rgba(99,102,241,0.08);
+        }
+        #mode-toggle:checked ~ .page-wrapper {
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --border: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #334155;
+            --text-muted: #64748b;
+            --sidebar-bg: #ffffff;
+            --navbar-bg: rgba(248,250,252,0.85);
+            --table-head: rgba(248,250,252,0.8);
+            --input-bg: #f1f5f9;
+            --hover-bg: rgba(99,102,241,0.06);
+        }
+        body { font-family: 'Inter', system-ui, sans-serif; margin: 0; }
+        a { text-decoration: none; color: inherit; }
+
+        .sidebar { width: 240px; transition: width 0.3s cubic-bezier(0.4,0,0.2,1); overflow: hidden; }
+        .main-content { margin-left: 240px; transition: margin-left 0.3s cubic-bezier(0.4,0,0.2,1); }
+        #sidebar-toggle:checked ~ .page-wrapper .sidebar { width: 72px; }
+        #sidebar-toggle:checked ~ .page-wrapper .main-content { margin-left: 72px; }
+        #sidebar-toggle:checked ~ .page-wrapper .menu-label { display: none; }
+        #sidebar-toggle:checked ~ .page-wrapper .header-text { display: none; }
+        #sidebar-toggle:checked ~ .page-wrapper .footer-details { display: none; }
+        #sidebar-toggle:checked ~ .page-wrapper .menu-item { justify-content: center; padding-left: 0; padding-right: 0; }
+        #sidebar-toggle:checked ~ .page-wrapper .menu-icon { margin: 0; }
+        #sidebar-toggle:checked ~ .page-wrapper .footer-content { justify-content: center; }
+        #sidebar-toggle:checked ~ .page-wrapper .sidebar-badge { display: none; }
+        .arrow-left { display: inline-flex; }
+        .arrow-right { display: none; }
+        #sidebar-toggle:checked ~ .page-wrapper .arrow-left { display: none; }
+        #sidebar-toggle:checked ~ .page-wrapper .arrow-right { display: inline-flex; }
+        .menu-active { background: rgba(99,102,241,0.12) !important; color: #818cf8 !important; border-left: 3px solid #6366f1; }
+        .menu-active .menu-icon { color: #818cf8 !important; }
+        .menu-item { transition: all 0.15s ease; }
+        .menu-item:hover { background: var(--hover-bg); }
+
+        .drawer-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 40; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
+        .drawer-panel { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; z-index: 50; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); overflow-y: auto; }
+        #drawer-toggle:checked ~ .page-wrapper .drawer-backdrop { opacity: 1; visibility: visible; }
+        #drawer-toggle:checked ~ .page-wrapper .drawer-panel { transform: translateX(0); }
+
+        .toggle-thumb { transition: left 0.3s cubic-bezier(0.4,0,0.2,1); }
+        #mode-toggle:checked ~ .page-wrapper .toggle-thumb { left: 29px; }
+        .thumb-sun { display: none; }
+        #mode-toggle:checked ~ .page-wrapper .thumb-sun { display: block; }
+        .thumb-moon { display: block; }
+        #mode-toggle:checked ~ .page-wrapper .thumb-moon { display: none; }
+
+        .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .table-wrap-pelanggaran table { min-width: 920px; }
+        .table-wrap th { background: var(--table-head); color: var(--text-muted); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 12px 16px; text-align: left; white-space: nowrap; border-bottom: 1px solid var(--border); }
+        .table-wrap td { color: var(--text-secondary); font-size: 0.8125rem; padding: 12px 16px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+        .table-wrap tbody tr { transition: background 0.15s; }
+        .table-wrap tbody tr:hover { background: var(--hover-bg); }
+        .table-wrap tbody tr:last-child td { border-bottom: none; }
+        @media (max-width: 767px) { .col-oleh { display: none !important; } }
+
+        .bottom-nav-item { transition: color 0.15s ease; }
+        .bottom-nav-item:hover { color: var(--text-primary); }
+        .bottom-nav-active { color: #818cf8 !important; }
+        .bottom-nav-active::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 24px; height: 3px; border-radius: 0 0 4px 4px; background: #6366f1; }
+
+        @keyframes glow-pulse { 0%, 100% { opacity: 0.4; transform: translate(0,0) scale(1); } 50% { opacity: 0.7; transform: translate(0,0) scale(1.05); } }
+        .bg-glow { animation: glow-pulse 8s ease-in-out infinite; }
+
+        .input-field { background: var(--input-bg); border: 1px solid var(--border); border-radius: 0.5rem; color: var(--text-primary); font-size: 0.875rem; height: 2.75rem; padding: 0 1rem; transition: border-color 0.15s, box-shadow 0.15s; width: 100%; }
+        .input-field::placeholder { color: var(--text-muted); }
+        .input-field:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
+        .input-field::-webkit-calendar-picker-indicator { filter: invert(0.6); cursor: pointer; }
+        #mode-toggle:checked ~ .page-wrapper .input-field::-webkit-calendar-picker-indicator { filter: none; }
+        .select-field { background: var(--input-bg); border: 1px solid var(--border); border-radius: 0.5rem; color: var(--text-primary); font-size: 0.875rem; height: 2.75rem; padding: 0 2.25rem 0 1rem; appearance: none; -webkit-appearance: none; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; width: 100%; }
+        .select-field:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
+        .select-field option { background: var(--card); color: var(--text-primary); }
+
+        .btn-indigo { background: linear-gradient(135deg, #4f46e5, #6366f1); color: #ffffff; transition: opacity 0.15s, transform 0.15s, box-shadow 0.15s; }
+        .btn-indigo:hover { opacity: 0.92; transform: translateY(-1px); box-shadow: 0 4px 15px -3px rgba(99,102,241,0.4); }
+        .icon-btn { transition: background 0.15s, color 0.15s; color: var(--text-muted); }
+        .icon-btn:hover { background: var(--hover-bg); color: var(--text-primary); }
+        .aksi-btn { width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border-radius: 0.5rem; cursor: pointer; transition: background 0.15s; background: transparent; border: none; font-size: 0.875rem; }
+        .aksi-btn:hover { background: var(--hover-bg); }
+
+        .badge { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.6875rem; font-weight: 600; white-space: nowrap; }
+        .badge-ringan { background: rgba(34,197,94,0.15); color: #22c55e; }
+        .badge-sedang { background: rgba(234,179,8,0.15); color: #eab308; }
+        .badge-berat { background: rgba(239,68,68,0.15); color: #ef4444; }
+        .badge-menunggu { background: rgba(234,179,8,0.15); color: #eab308; }
+        .badge-disetujui { background: rgba(34,197,94,0.15); color: #22c55e; }
+        .badge-ditolak { background: rgba(239,68,68,0.15); color: #ef4444; }
+        .badge-langsung { background: rgba(99,102,241,0.15); color: #818cf8; }
+
+        .page-btn { min-width: 2.5rem; height: 2.5rem; display: flex; align-items: center; justify-content: center; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 500; cursor: pointer; transition: background 0.15s, color 0.15s; color: var(--text-muted); background: transparent; border: none; }
+        .page-btn:hover { background: var(--hover-bg); color: var(--text-primary); }
+        .page-btn-active { background: #6366f1 !important; color: #ffffff !important; font-weight: 600; }
+        .page-btn-disabled { opacity: 0.35; cursor: not-allowed; }
+        .page-btn-disabled:hover { background: transparent; color: var(--text-muted); }
+
+        @media (min-width: 768px) {
+            .drawer-backdrop, .drawer-panel { display: none !important; }
+            .hamburger-btn { display: none !important; }
+            .bottom-nav { display: none !important; }
+            .mobile-main-pad { padding-bottom: 1.5rem !important; }
+        }
+        @media (max-width: 767px) {
+            .sidebar { display: none !important; }
+            .sidebar-arrow { display: none !important; }
+            .main-content { margin-left: 0 !important; }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <input type="checkbox" id="mode-toggle" class="hidden" aria-hidden="true">
+    <input type="checkbox" id="sidebar-toggle" class="hidden" aria-hidden="true">
+    <input type="checkbox" id="drawer-toggle" class="hidden" aria-hidden="true">
+
+    <div class="page-wrapper min-h-screen relative" style="background: var(--bg);">
+
+        <div class="bg-glow pointer-events-none fixed top-[-200px] right-[-200px] w-[550px] h-[550px] rounded-full z-0"
+             style="background: radial-gradient(circle, rgba(99,102,241,0.045) 0%, transparent 70%);"></div>
+        <div class="bg-glow pointer-events-none fixed bottom-[-150px] left-[-150px] w-[400px] h-[400px] rounded-full z-0"
+             style="background: radial-gradient(circle, rgba(99,102,241,0.03) 0%, transparent 70%); animation-delay: -4s;"></div>
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar fixed top-0 left-0 h-full z-30 flex flex-col border-r"
+               style="background: var(--sidebar-bg); border-color: var(--border);">
+            <div class="flex items-center gap-3 px-5 py-5 border-b flex-shrink-0" style="border-color: var(--border);">
+                <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+                     style="background: linear-gradient(135deg, #4f46e5, #818cf8);">
+                    <i class="fa-solid fa-shield-halved text-white text-sm"></i>
+                </div>
+                <span class="header-text text-lg font-extrabold tracking-tight" style="color: var(--text-primary);">V-Track</span>
+            </div>
+            <nav class="flex-1 overflow-y-auto py-3 px-3 space-y-0.5">
+                <a href="#" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg">
+                    <span class="menu-icon text-base w-6 text-center flex-shrink-0" style="color: var(--text-muted);">🏠</span>
+                    <span class="menu-label text-sm font-medium" style="color: var(--text-secondary);">Dashboard</span>
+                </a>
+                <a href="#" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg">
+                    <span class="menu-icon text-base w-6 text-center flex-shrink-0" style="color: var(--text-muted);">👥</span>
+                    <span class="menu-label text-sm font-medium" style="color: var(--text-secondary);">Kelola User</span>
+                </a>
+                <a href="#" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg">
+                    <span class="menu-icon text-base w-6 text-center flex-shrink-0" style="color: var(--text-muted);">🏫</span>
+                    <span class="menu-label text-sm font-medium" style="color: var(--text-secondary);">Data Kelas</span>
+                </a>
+                <a href="#" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg">
+                    <span class="menu-icon text-base w-6 text-center flex-shrink-0" style="color: var(--text-muted);">👤</span>
+                    <span class="menu-label text-sm font-medium" style="color: var(--text-secondary);">Data Siswa</span>
+                </a>
+                <a href="#" class="menu-item menu-active flex items-center gap-3 px-3 py-2.5 rounded-lg">
+                    <span class="menu-icon text-base w-6 text-center flex-shrink-0" style="color: var(--text-muted);">⚠️</span>
+                    <span class="menu-label text-sm font-medium" style="color: var(--text-secondary);">Pelanggaran</span>
+                </a>
+                <a href="#" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg">
+                    <span class="menu-icon text-base w-6 text-center flex-shrink-0" style="color: var(--text-muted);">🚨</span>
+                    <span class="menu-label text-sm font-medium" style="color: var(--text-secondary);">Wajib BK</span>
+                    <span class="sidebar-badge ml-auto w-5 h-5 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">3</span>
+                </a>
+                <a href="#" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg">
+                    <span class="menu-icon text-base w-6 text-center flex-shrink-0" style="color: var(--text-muted);">📊</span>
+                    <span class="menu-label text-sm font-medium" style="color: var(--text-secondary);">History Poin</span>
+                </a>
+                <a href="#" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg">
+                    <span class="menu-icon text-base w-6 text-center flex-shrink-0" style="color: var(--text-muted);">⚙️</span>
+                    <span class="menu-label text-sm font-medium" style="color: var(--text-secondary);">Pengaturan</span>
+                </a>
+            </nav>
+            <div class="flex-shrink-0 px-4 py-4 border-t" style="border-color: var(--border);">
+                <div class="footer-content flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                         style="background: linear-gradient(135deg, #4f46e5, #6366f1);">A</div>
+                    <div class="footer-details min-w-0">
+                        <p class="text-sm font-semibold truncate" style="color: var(--text-primary);">Administrator</p>
+                        <p class="text-[11px]" style="color: var(--text-muted);">Admin</p>
+                    </div>
+                </div>
+                <button class="footer-details mt-3 w-full py-2 rounded-lg text-xs font-semibold cursor-pointer border flex items-center justify-center gap-1.5"
+                        style="background: transparent; border-color: var(--border); color: var(--text-muted);">
+                    <i class="fa-solid fa-right-from-bracket text-[11px]"></i> Keluar
+                </button>
+            </div>
+            <label for="sidebar-toggle"
+                   class="sidebar-arrow absolute -right-3.5 top-1/2 -translate-y-1/2 z-40 w-7 h-7 rounded-full flex items-center justify-center cursor-pointer shadow-lg border transition-all duration-200 hover:scale-110"
+                   style="background: var(--card); border-color: var(--border);">
+                <i class="fa-solid fa-chevron-left text-[10px] arrow-left" style="color: var(--text-muted);"></i>
+                <i class="fa-solid fa-chevron-right text-[10px] arrow-right" style="color: var(--text-muted);"></i>
+            </label>
+        </aside>
+
+        <!-- DRAWER -->
+        <label for="drawer-toggle" class="drawer-backdrop cursor-pointer" aria-label="Tutup menu"></label>
+        <div class="drawer-panel flex flex-col border-r" style="background: var(--sidebar-bg); border-color: var(--border);">
+            <div class="flex items-center justify-between px-5 py-4 border-b flex-shrink-0" style="border-color: var(--border);">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, #4f46e5, #818cf8);"><i class="fa-solid fa-shield-halved text-white text-xs"></i></div>
+                    <span class="text-base font-extrabold tracking-tight" style="color: var(--text-primary);">V-Track</span>
+                </div>
+                <label for="drawer-toggle" class="w-11 h-11 flex items-center justify-center rounded-lg cursor-pointer icon-btn" aria-label="Tutup menu"><i class="fa-solid fa-xmark text-lg"></i></label>
+            </div>
+            <nav class="flex-1 overflow-y-auto py-3 px-3 space-y-0.5">
+                <a href="#" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg"><span class="text-base w-6 text-center flex-shrink-0" style="color: var(--text-muted);">🏠</span><span class="text-sm font-medium" style="color: var(--text-secondary);">Dashboard</span></a>
+                <a href="#" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg"><span class="text-base w-6 text-center flex-shrink-0" style="color: var(--text-muted);">👥</span><span class="text-sm font-medium" style="color: var(--text-secondary);">Kelola User</span></a>
+                <a href="#" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg"><span class="text-base w-6 text-center flex-shrink-0" style="color: var(--text-muted);">🏫</span><span class="text-sm font-medium" style="color: var(--text-secondary);">Data Kelas</span></a>
+                <a href="#" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg"><span class="text-base w-6 text-center flex-shrink-0" style="color: var(--text-muted);">👤</span><span class="text-sm font-medium" style="color: var(--text-secondary);">Data Siswa</span></a>
+                <a href="#" class="menu-item menu-active flex items-center gap-3 px-3 py-2.5 rounded-lg"><span class="text-base w-6 text-center flex-shrink-0">⚠️</span><span class="text-sm font-medium" style="color: var(--text-secondary);">Pelanggaran</span></a>
+                <a href="#" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg"><span class="text-base w-6 text-center flex-shrink-0" style="color: var(--text-muted);">🚨</span><span class="text-sm font-medium" style="color: var(--text-secondary);">Wajib BK</span><span class="ml-auto w-5 h-5 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">3</span></a>
+                <a href="#" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg"><span class="text-base w-6 text-center flex-shrink-0" style="color: var(--text-muted);">📊</span><span class="text-sm font-medium" style="color: var(--text-secondary);">History Poin</span></a>
+                <a href="#" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg"><span class="text-base w-6 text-center flex-shrink-0" style="color: var(--text-muted);">⚙️</span><span class="text-sm font-medium" style="color: var(--text-secondary);">Pengaturan</span></a>
+            </nav>
+            <div class="flex-shrink-0 px-4 py-4 border-t" style="border-color: var(--border);">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style="background: linear-gradient(135deg, #4f46e5, #6366f1);">A</div>
+                    <div class="min-w-0"><p class="text-sm font-semibold truncate" style="color: var(--text-primary);">Administrator</p><p class="text-[11px]" style="color: var(--text-muted);">Admin</p></div>
+                </div>
+                <button class="mt-3 w-full py-2 rounded-lg text-xs font-semibold cursor-pointer border flex items-center justify-center gap-1.5" style="background: transparent; border-color: var(--border); color: var(--text-muted);"><i class="fa-solid fa-right-from-bracket text-[11px]"></i> Keluar</button>
+            </div>
+        </div>
+
+        <!-- KONTEN UTAMA -->
+        <div class="main-content relative z-10 min-h-screen">
+
+            <header class="sticky top-0 z-20 flex items-center justify-between px-4 md:px-6 border-b"
+                    style="background: var(--navbar-bg); border-color: var(--border); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); height: 64px;">
+                <div class="flex items-center gap-3">
+                    <label for="drawer-toggle" class="hamburger-btn w-11 h-11 flex items-center justify-center rounded-lg cursor-pointer icon-btn" aria-label="Buka menu"><i class="fa-solid fa-bars text-lg"></i></label>
+                    <h1 class="text-lg font-bold" style="color: var(--text-primary);">Data Pelanggaran</h1>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button class="relative w-11 h-11 flex items-center justify-center rounded-lg cursor-pointer icon-btn" aria-label="Notifikasi">
+                        <i class="fa-solid fa-bell text-base"></i>
+                        <span class="absolute top-1.5 right-1.5 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center leading-none" style="width: 18px; height: 18px;">3</span>
+                    </button>
+                    <label for="mode-toggle" class="relative cursor-pointer flex items-center ml-1" aria-label="Ganti tema tampilan">
+                        <div class="relative w-[56px] h-[30px] rounded-full transition-colors duration-300 shadow-inner" style="background: var(--border);">
+                            <span class="toggle-thumb absolute top-[3px] left-[3px] w-6 h-6 rounded-full z-10 flex items-center justify-center shadow-md" style="background: linear-gradient(135deg, #4f46e5, #818cf8);">
+                                <span class="thumb-moon text-[11px] leading-none">🌙</span>
+                                <span class="thumb-sun text-[11px] leading-none">☀️</span>
+                            </span>
+                        </div>
+                    </label>
+                </div>
+            </header>
+
+            <main class="p-4 md:p-6 mobile-main-pad" style="padding-bottom: 5rem;">
+
+                <!-- BARIS FILTER -->
+                <section class="flex flex-col sm:flex-row gap-3 mb-5">
+                    <div class="relative flex-1 min-w-0">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-xs pointer-events-none" style="color: var(--text-muted);"></i>
+                        <input type="text" placeholder="Cari nama siswa..." class="input-field" style="padding-left: 2.5rem;">
+                    </div>
+                    <div class="relative w-full sm:w-44 flex-shrink-0">
+                        <select class="select-field w-full">
+                            <option>Semua Status</option>
+                            <option>Menunggu</option>
+                            <option>Disetujui</option>
+                            <option>Ditolak</option>
+                            <option>Langsung Berlaku</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[10px] pointer-events-none" style="color: var(--text-muted);"></i>
+                    </div>
+                    <div class="relative w-full sm:w-40 flex-shrink-0">
+                        <select class="select-field w-full">
+                            <option>Semua Kategori</option>
+                            <option>Ringan</option>
+                            <option>Sedang</option>
+                            <option>Berat</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[10px] pointer-events-none" style="color: var(--text-muted);"></i>
+                    </div>
+                    <div class="w-full sm:w-44 flex-shrink-0">
+                        <input type="month" class="input-field w-full">
+                    </div>
+                    <button type="button" class="btn-indigo h-11 px-4 rounded-lg text-sm font-semibold cursor-pointer flex items-center justify-center gap-2 flex-shrink-0 w-full sm:w-auto">
+                        <i class="fa-solid fa-filter text-xs"></i>
+                        <span>Filter</span>
+                    </button>
+                </section>
+
+                <!-- TABEL PELANGGARAN -->
+                <section class="rounded-xl border overflow-hidden" style="background: var(--card); border-color: var(--border);">
+                    <div class="table-wrap table-wrap-pelanggaran">
+                        <table class="w-full">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;">No</th>
+                                    <th>Tanggal</th>
+                                    <th>Nama Siswa</th>
+                                    <th>Jenis Pelanggaran</th>
+                                    <th>Kategori</th>
+                                    <th>Poin</th>
+                                    <th class="col-oleh">Oleh</th>
+                                    <th>Status</th>
+                                    <th style="width: 60px;">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="color: var(--text-muted);">1</td>
+                                    <td style="color: var(--text-primary); font-weight: 500;">15 Jun 2025</td>
+                                    <td>
+                                        <p style="font-weight: 600; color: var(--text-primary); line-height: 1.3;">Ahmad Rizky Pratama</p>
+                                        <p style="font-size: 0.6875rem; color: var(--text-muted);">XII RPL 1</p>
+                                    </td>
+                                    <td>Berkata kasar kepada teman</td>
+                                    <td><span class="badge badge-sedang">Sedang</span></td>
+                                    <td style="font-weight: 600; color: var(--text-primary);">15</td>
+                                    <td class="col-oleh">Rina Wulandari, S.Pd.</td>
+                                    <td><span class="badge badge-menunggu">⏳ Menunggu</span></td>
+                                    <td><button class="aksi-btn" aria-label="Detail">👁️</button></td>
+                                </tr>
+                                <tr>
+                                    <td style="color: var(--text-muted);">2</td>
+                                    <td style="color: var(--text-primary); font-weight: 500;">14 Jun 2025</td>
+                                    <td>
+                                        <p style="font-weight: 600; color: var(--text-primary); line-height: 1.3;">Siti Nurhaliza</p>
+                                        <p style="font-size: 0.6875rem; color: var(--text-muted);">XI TKJ 1</p>
+                                    </td>
+                                    <td>Tidak memakai seragam lengkap</td>
+                                    <td><span class="badge badge-ringan">Ringan</span></td>
+                                    <td style="font-weight: 600; color: var(--text-primary);">5</td>
+                                    <td class="col-oleh">Budi Santoso, S.Pd.</td>
+                                    <td><span class="badge badge-langsung">⚡ Langsung Berlaku</span></td>
+                                    <td><button class="aksi-btn" aria-label="Detail">👁️</button></td>
+                                </tr>
+                                <tr>
+                                    <td style="color: var(--text-muted);">3</td>
+                                    <td style="color: var(--text-primary); font-weight: 500;">12 Jun 2025</td>
+                                    <td>
+                                        <p style="font-weight: 600; color: var(--text-primary); line-height: 1.3;">Faisal Rahman</p>
+                                        <p style="font-size: 0.6875rem; color: var(--text-muted);">X RPL 2</p>
+                                    </td>
+                                    <td>Membolos saat jam pelajaran</td>
+                                    <td><span class="badge badge-berat">Berat</span></td>
+                                    <td style="font-weight: 600; color: var(--text-primary);">30</td>
+                                    <td class="col-oleh">Dewi Lestari, S.Pd.</td>
+                                    <td><span class="badge-badge-ditolak">❌ Ditolak</span></td>
+                                    <td><button class="aksi-btn" aria-label="Detail">👁️</button></td>
+                                </tr>
+                                <tr>
+                                    <td style="color: var(--text-muted);">4</td>
+                                    <td style="color: var(--text-primary); font-weight: 500;">10 Jun 2025</td>
+                                    <td>
+                                        <p style="font-weight: 600; color: var(--text-primary); line-height: 1.3;">Rizki Firmansyah</p>
+                                        <p style="font-size: 0.6875rem; color: var(--text-muted);">XI TKJ 2</p>
+                                    </td>
+                                    <td>Membuat keributan di koridor</td>
+                                    <td><span class="badge badge-sedang">Sedang</span></td>
+                                    <td style="font-weight: 600; color: var(--text-primary);">15</td>
+                                    <td class="col-oleh">Ahmad Fauzi, S.Pd.</td>
+                                    <td><span class="badge badge-disetujui">✅ Disetujui</span></td>
+                                    <td><button class="aksi-btn" aria-label="Detail">👁️</button></td>
+                                </tr>
+                                <tr>
+                                    <td style="color: var(--text-muted);">5</td>
+                                    <td style="color: var(--text-primary); font-weight: 500;">08 Jun 2025</td>
+                                    <td>
+                                        <p style="font-weight: 600; color: var(--text-primary); line-height: 1.3;">Putri Rahayu</p>
+                                        <p style="font-size: 0.6875rem; color: var(--text-muted);">XII RPL 1</p>
+                                    </td>
+                                    <td>Membawa ponsel ke kelas</td>
+                                    <td><span class="badge-berat">Berat</span></td>
+                                    <td style="font-weight: 600; color: var(--text-primary);">25</td>
+                                    <td class="col-oleh">Rina Wulandari, S.Pd.</td>
+                                    <td><span class="badge badge-disetujui">✅ Disetujui</span></td>
+                                    <td><button class="aksi-btn" aria-label="Detail">👁️</button></td>
+                                </tr>
+                                <tr>
+                                    <td style="color: var(--text-muted);">6</td>
+                                    <td style="color: var(--text-primary); font-weight: 500;">05 Jun 2025</td>
+                                    <td>
+                                        <p style="font-weight: 600; color: var(--text-primary); line-height: 1.3;">Dimas Prayoga</p>
+                                        <p style="font-size: 0.6875rem; color: var(--text-muted);">XII RPL 2</p>
+                                    </td>
+                                    <td>Membolos saat jam pelajaran</td>
+                                    <td><span class="badge-berat">Berat</span></td>
+                                    <td style="font-weight: 600; color: var(--text-primary);">30</td>
+                                    <td class="col-oleh">Budi Santoso, S.Pd.</td>
+                                    <td><span class="badge badge-menunggu">⏳ Menunggu</span></td>
+                                    <td><button class="aksi-btn" aria-label="Detail">👁️</button></td>
+                                </tr>
+                                <tr>
+                                    <td style="color: var(--text-muted);">7</td>
+                                    <td style="color: var(--text-primary); font-weight: 500;">28 Mei 2025</td>
+                                    <td>
+                                        <p style="font-weight: 600; color: var(--text-primary); line-height: 1.3;">Dewi Anggraini</p>
+                                        <p style="font-size: 0.6875rem; color: var(--text-muted);">X RPL 1</p>
+                                    </td>
+                                    <td>Berkata kasar kepada teman</td>
+                                    <td><span class="badge-sedang">Sedang</span></td>
+                                    <td style="font-weight: 600; color: var(--text-primary);">15</td>
+                                    <td class="col-oleh">Siti Rahmawati, S.Pd.</td>
+                                    <td><span class="badge badge-disetujui">✅ Disetujui</span></td>
+                                    <td><button class="aksi-btn" aria-label="Detail">👁️</button></td>
+                                </tr>
+                                <tr>
+                                    <td style="color: var(--text-muted);">8</td>
+                                    <td style="color: var(--text-primary); font-weight: 500;">22 Apr 2025</td>
+                                    <td>
+                                        <p style="font-weight: 600; color: var(--text-primary); line-height: 1.3;">Anisa Safitri</p>
+                                        <p style="font-size: 0.6875rem; color: var(--text-muted);">XI TKJ 1</p>
+                                    </td>
+                                    <td>Tidak mengumpulkan tugas</td>
+                                    <td><span class="badge-ringan">Ringan</span></td>
+                                    <td style="font-weight: 600; color: var(--text-primary);">5</td>
+                                    <td class="col-oleh">Ahmad Fauzi, S.Pd.</td>
+                                    <td><span class="badge-langsung">⚡ Langsung Berlaku</span></td>
+                                    <td><button class="aksi-btn" aria-label="Detail">👁️</button></td>
+                                </tr>
+                                <tr>
+                                    <td style="color: var(--text-muted);">9</td>
+                                    <td style="color: var(--text-primary); font-weight: 500;">20 Apr 2025</td>
+                                    <td>
+                                        <p style="font-weight: 600; color: var(--text-primary); line-height: 1.3;">Ayu Lestari</p>
+                                        <p style="font-size: 0.6875rem; color: var(--text-muted);">X RPL 1</p>
+                                    </td>
+                                    <td>Terlambat masuk kelas</td>
+                                    <td><span class="badge-ringan">Ringan</span></td>
+                                    <td style="font-weight: 600; color: var(--text-primary);">5</td>
+                                    <td class="col-oleh">Dewi Lestari, S.Pd.</td>
+                                    <td><span class="badge-disetujui">✅ Disetujui</span></td>
+                                    <td><button class="aksi-btn" aria-label="Detail">👁️</button></td>
+                                </tr>
+                                <tr>
+                                    <td style="color: var(--text-muted);">10</td>
+                                    <td style="color: var(--text-primary); font-weight: 500;">10 Apr 2025</td>
+                                    <td>
+                                        <p style="font-weight: 600; color: var(--text-primary); line-height: 1.3;">Budi Hartono</p>
+                                        <p style="font-size: 0.6875rem; color: var(--text-muted);">XII RPL 2</p>
+                                    </td>
+                                    <td>Tidur saat pelajaran</td>
+                                    <td><span class="badge-ringan">Ringan</span></td>
+                                    <td style="font-weight: 600; color: var(--text-primary);">5</td>
+                                    <td class="col-oleh">Rina Wulandari, S.Pd.</td>
+                                    <td><span class="badge-disetujui">✅ Disetujui</span></td>
+                                    <td><button class="aksi-btn" aria-label="Detail">👁️</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- PAGINATION -->
+                <section class="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4">
+                    <p class="text-xs" style="color: var(--text-muted);">Menampilkan 1–10 dari 10 data</p>
+                    <div class="flex items-center gap-1">
+                        <button class="page-btn page-btn-disabled" disabled aria-label="Halaman sebelumnya">
+                            <i class="fa-solid fa-chevron-left text-xs"></i>
+                        </button>
+                        <button class="page-btn page-btn-active">1</button>
+                        <button class="page-btn page-btn-disabled" disabled aria-label="Halaman berikutnya">
+                            <i class="fa-solid fa-chevron-right text-xs"></i>
+                        </button>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+
+        <!-- BOTTOM NAV -->
+        <nav class="bottom-nav fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around border-t"
+             style="background: var(--sidebar-bg); border-color: var(--border); height: 64px;">
+            <a href="#" class="bottom-nav-item relative flex flex-col items-center justify-center gap-0.5 flex-1 h-full" style="color: var(--text-muted);">
+                <span class="text-lg leading-none">🏠</span>
+                <span class="text-[10px] font-medium">Dashboard</span>
+            </a>
+            <a href="#" class="bottom-nav-item relative flex flex-col items-center justify-center gap-0.5 flex-1 h-full" style="color: var(--text-muted);">
+                <span class="text-lg leading-none">👤</span>
+                <span class="text-[10px] font-medium">Siswa</span>
+            </a>
+            <a href="#" class="bottom-nav-item bottom-nav-active relative flex flex-col items-center justify-center gap-0.5 flex-1 h-full">
+                <span class="text-lg leading-none">⚠️</span>
+                <span class="text-[10px] font-semibold">Pelanggaran</span>
+            </a>
+            <a href="#" class="bottom-nav-item relative flex flex-col items-center justify-center gap-0.5 flex-1 h-full" style="color: var(--text-muted);">
+                <span class="text-lg leading-none">🚨</span>
+                <span class="text-[10px] font-medium">Wajib BK</span>
+                <span class="absolute top-2 right-1/2 translate-x-3 w-2 h-2 rounded-full bg-rose-500"></span>
+            </a>
+            <a href="#" class="bottom-nav-item relative flex flex-col items-center justify-center gap-0.5 flex-1 h-full" style="color: var(--text-muted);">
+                <span class="text-lg leading-none">⚙️</span>
+                <span class="text-[10px] font-medium">Pengaturan</span>
+            </a>
+        </nav>
+
+    </div>
+</body>
+</html>

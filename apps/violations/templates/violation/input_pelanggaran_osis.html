@@ -1,0 +1,308 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <input type="checkbox" id="mode-toggle" class="hidden" aria-hidden="true">
+    <input type="checkbox" id="has-foto" class="hidden" aria-hidden="true">
+
+    <div class="page-wrapper min-h-screen relative" style="background: var(--bg);">
+
+        <div class="bg-glow pointer-events-none fixed top-[-200px] right-[-200px] w-[550px] h-[550px] rounded-full z-0"
+             style="background: radial-gradient(circle, rgba(245,158,11,0.035) 0%, transparent 70%);"></div>
+        <div class="bg-glow pointer-events-none fixed bottom-[-150px] left-[-150px] w-[400px] h-[400px] rounded-full z-0"
+             style="background: radial-gradient(circle, rgba(245,158,11,0.025) 0%, transparent 70%); animation-delay: -4s;"></div>
+
+        <!-- ===== KONTEN ===== -->
+        <main class="relative z-10 p-4 md:p-6 lg:p-8 max-w-3xl mx-auto">
+
+            <!-- TOMBOL KEMBALI -->
+            <div class="mb-5">
+                {% if siswa.kelas %}
+                    <a href="http://localhost:8000/academics/osis/kelas/{{ siswa.kelas.id }}/" class="back-btn h-11 inline-flex items-center gap-2 px-3 rounded-lg"
+                       style="color: var(--text-muted);"
+                       aria-label="Kembali ke halaman kelas">
+                        <i class="fa-solid fa-arrow-left text-sm"></i>
+                        <span class="text-sm font-medium">Kembali</span>
+                    </a>
+                {% else %}
+                    <a href="{% url 'academic:data_osis_kelas' %}" class="back-btn h-11 inline-flex items-center gap-2 px-3 rounded-lg"
+                       style="color: var(--text-muted);"
+                       aria-label="Kembali ke halaman sebelumnya">
+                        <i class="fa-solid fa-arrow-left text-sm"></i>
+                        <span class="text-sm font-medium">Kembali</span>
+                    </a>
+                {% endif %}
+            </div>
+
+            <!-- ===== CARD FORM ===== -->
+            <div class="rounded-xl border p-5 md:p-8" style="background: var(--card); border-color: var(--border); position: relative;">
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="siswa_id" value="{{ siswa.id }}">
+
+
+                    <!-- SECTION 1 — DATA SISWA -->
+                    <div class="mb-6">
+                        <h3 class="section-title">Siswa yang Dilaporkan</h3>
+                        <div class="flex flex-col sm:flex-row gap-4 sm:gap-5 items-center sm:items-start">
+                            {% if siswa.foto %}
+                                <img src="{{ siswa.foto.url }}" alt="{{ siswa.nama }}" class="avatar-lg flex-shrink-0" style="width:56px;height:56px;object-fit:cover;border-radius:0.5rem;" />
+                            {% else %}
+                                <div class="avatar-lg flex-shrink-0" style="width:56px;height:56px;display:flex;align-items:center;justify-content:center;border-radius:0.5rem;background:linear-gradient(135deg,#4f46e5,#6366f1);color:white;font-weight:600;font-size:0.875rem;">{{ siswa.nama|slice:":2"|upper }}</div>
+                            {% endif %}
+                            <div class="flex-1 w-full space-y-3">
+                                <div>
+                                    <label class="field-label" style="margin-bottom: 0.125rem;">Nama Siswa</label>
+                                    <input type="text" class="input-readonly" value="{{ siswa.nama }}" readonly tabindex="-1" aria-readonly="true">
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="field-label" style="margin-bottom: 0.125rem;">NIS</label>
+                                        <input type="text" class="input-readonly" value="{{ siswa.nis }}" readonly tabindex="-1" aria-readonly="true">
+                                    </div>
+                                    <div>
+                                        <label class="field-label" style="margin-bottom: 0.125rem;">Kelas</label>
+                                        <input type="text" class="input-readonly" value="{{ siswa.kelas.nama_kelas|default:'-' }}" readonly tabindex="-1" aria-readonly="true">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 2 — DETAIL PELANGGARAN -->
+                    <div class="mb-6">
+                        <h3 class="section-title">Detail Pelanggaran</h3>
+
+                        <div class="mb-4">
+                            <label for="tgl-kejadian" class="field-label">
+                                Tanggal Kejadian <span class="required-star">*</span>
+                            </label>
+                            <input type="date" id="tgl-kejadian" name="tgl_kejadian" class="input-field" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="jenis-pelanggaran" class="field-label">
+                                Jenis Pelanggaran <span class="required-star">*</span>
+                            </label>
+                            <div class="relative">
+                                <select id="jenis-pelanggaran" name="jenis_pelanggaran" class="select-field" required>
+                                    <option value="" disabled selected>Pilih jenis pelanggaran</option>
+                                    <optgroup label="🟢 PELANGGARAN RINGAN">
+                                        {% for jenis in jenis_list %}
+                                            <option value="{{ jenis.id }}">{{ jenis.nama }}</option>
+                                        {% empty %}
+                                            <option disabled>Tidak ada jenis pelanggaran</option>
+                                        {% endfor %}
+                                    </optgroup>
+                                </select>
+                                <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[10px] pointer-events-none" style="color: var(--text-muted);"></i>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="deskripsi" class="field-label">
+                                Deskripsi <span class="required-star">*</span>
+                            </label>
+                            <textarea id="deskripsi" name="deskripsi"
+                                      class="textarea-field" rows="3"
+                                      placeholder="Ceritakan kejadian secara singkat..." required></textarea>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 3 — BUKTI FOTO -->
+                    <div class="mb-8">
+                        <h3 class="section-title">Bukti Foto</h3>
+
+                        <div class="upload-wrap">
+                            <label for="foto-input" class="uw-hide upload-box block">
+                                <input type="file" id="foto-input" name="bukti_foto" class="hidden" accept=".jpg,.jpeg,.png">
+                                <i class="fa-solid fa-camera text-3xl" style="color: var(--text-muted);"></i>
+                                <p class="text-sm font-medium" style="color: var(--text-secondary);">Klik atau seret foto bukti</p>
+                                <p class="text-xs" style="color: var(--text-muted);">Format: JPG, PNG</p>
+                            </label>
+                            <div class="uw-show upload-preview">
+                                <div class="w-full flex items-center justify-center"
+                                     style="min-height: 140px; background: linear-gradient(135deg, rgba(245,158,11,0.05), rgba(245,158,11,0.02));">
+                                    <div class="text-center py-8">
+                                        <i class="fa-regular fa-image text-4xl mb-2 block" style="color: var(--text-muted); opacity: 0.3;"></i>
+                                        <p class="text-xs" style="color: var(--text-muted);">Preview foto bukti</p>
+                                    </div>
+                                </div>
+                                <button type="button" class="delete-foto-btn" aria-label="Hapus foto">✕</button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- TOMBOL BAWAH -->
+                    <div class="flex flex-col gap-3 pt-6" style="border-top: 1px solid var(--border);">
+                        <button type="submit"
+                                class="btn-amber rounded-lg text-sm font-semibold cursor-pointer flex items-center justify-center gap-2 w-full"
+                                style="height: 48px;">
+                            <i class="fa-solid fa-paper-plane text-xs"></i>
+                            Kirim Laporan
+                        </button>
+                        <button type="button"
+                                class="btn-outline rounded-lg text-sm font-semibold cursor-pointer flex items-center justify-center gap-2 w-full"
+                                style="height: 44px;">
+                            Batal
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+
+        </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Restore theme preference (persist mode-toggle across page loads)
+            try {
+                var modeToggle = document.getElementById('mode-toggle');
+                var saved = localStorage.getItem('vtrack_mode_checked');
+                if (modeToggle && saved !== null) {
+                    modeToggle.checked = (saved === '1');
+                    // notify any listeners or CSS that rely on :checked/state
+                    try {
+                        var evt = document.createEvent('HTMLEvents'); evt.initEvent('change', true, true); modeToggle.dispatchEvent(evt);
+                    } catch(e){}
+                }
+                if (modeToggle) {
+                    modeToggle.addEventListener('change', function() {
+                        try { localStorage.setItem('vtrack_mode_checked', this.checked ? '1' : '0'); } catch(e){}
+                    });
+                }
+            } catch(e){}
+
+            // Auto-set tanggal kejadian ke tanggal hari ini jika kosong
+            var dateInput = document.getElementById('tgl-kejadian');
+            if (dateInput && !dateInput.value) {
+                var today = new Date();
+                var yyyy = today.getFullYear();
+                var mm = String(today.getMonth() + 1).padStart(2, '0');
+                var dd = String(today.getDate()).padStart(2, '0');
+                dateInput.value = yyyy + '-' + mm + '-' + dd;
+            }
+
+            // File input preview handling
+            var fotoInput = document.getElementById('foto-input');
+            var hasFoto = document.getElementById('has-foto');
+            var uploadWrap = document.querySelector('.upload-wrap');
+            var previewContainer = uploadWrap ? uploadWrap.querySelector('.uw-show.upload-preview') : null;
+
+            // Save original preview HTML to restore on delete
+            var originalPreviewHTML = previewContainer ? previewContainer.innerHTML : '';
+
+            function attachDeleteButton() {
+                if (!previewContainer) return;
+                var del = previewContainer.querySelector('.delete-foto-btn');
+                if (del) {
+                    del.addEventListener('click', function () {
+                        if (fotoInput) fotoInput.value = '';
+                        if (hasFoto) hasFoto.checked = false;
+                        previewContainer.innerHTML = originalPreviewHTML;
+                        attachDeleteButton();
+                    });
+                }
+            }
+
+            attachDeleteButton();
+
+            if (fotoInput) {
+                fotoInput.addEventListener('change', function (e) {
+                    var file = this.files && this.files[0];
+                    if (!file) return;
+                    var reader = new FileReader();
+                    reader.onload = function (ev) {
+                        if (!previewContainer) return;
+                        previewContainer.innerHTML = '\n                            <div class="w-full flex items-center justify-center" style="min-height: 140px;">\n                                <div class="text-center py-2">\n                                    <img src="' + ev.target.result + '" alt="Preview Foto" style="max-width:100%; max-height:320px; object-fit:contain; border-radius:8px;" />\n                                </div>\n                            </div>\n                            <button type="button" class="delete-foto-btn" aria-label="Hapus foto">✕</button>\n                        ';
+                        if (hasFoto) hasFoto.checked = true;
+                        attachDeleteButton();
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            // Notification on submit (client-side)
+            function showSubmissionNotification(message) {
+                var existing = document.getElementById('submission-notif');
+                if (!existing) {
+                    var el = document.createElement('div');
+                    el.id = 'submission-notif';
+                    el.style.position = 'fixed';
+                    el.style.zIndex = '9999';
+                    el.style.background = 'linear-gradient(135deg, #059669, #10b981)';
+                    el.style.color = 'white';
+                    el.style.padding = '10px 16px';
+                    el.style.borderRadius = '8px';
+                    el.style.boxShadow = '0 6px 18px rgba(0,0,0,0.12)';
+                    el.style.fontWeight = '600';
+                    el.style.opacity = '0';
+                    el.style.transition = 'opacity 0.25s ease';
+                    // position centered below navbar if present
+                    var header = document.querySelector('header');
+                    var topOffset = header ? (header.offsetHeight + 12) + 'px' : '72px';
+                    el.style.top = topOffset;
+                    el.style.left = '50%';
+                    el.style.transform = 'translateX(-50%)';
+                    document.body.appendChild(el);
+                    existing = el;
+                } else {
+                    // update position in case layout changed
+                    var header = document.querySelector('header');
+                    var topOffset = header ? (header.offsetHeight + 12) + 'px' : '72px';
+                    existing.style.top = topOffset;
+                    existing.style.left = '50%';
+                    existing.style.transform = 'translateX(-50%)';
+                }
+                existing.textContent = message || 'Laporan terkirim';
+                existing.style.display = 'block';
+                // force reflow before changing opacity
+                void existing.offsetWidth;
+                existing.style.opacity = '1';
+                // show longer so user can read (10s)
+                setTimeout(function() {
+                    existing.style.opacity = '0';
+                    setTimeout(function() { existing.style.display = 'none'; }, 500);
+                }, 10000);
+            }
+
+            var formEl = document.querySelector('form');
+            if (formEl) {
+                formEl.addEventListener('submit', function(e) {
+                    // prevent immediate navigation so user can see the notification
+                    if (formEl.dataset.submitting === 'true') {
+                        e.preventDefault();
+                        return;
+                    }
+                    e.preventDefault();
+                    formEl.dataset.submitting = 'true';
+                    // disable submit buttons to avoid duplicate submissions and show loading state
+                    var submitButtons = formEl.querySelectorAll('button[type="submit"], input[type="submit"]');
+                    submitButtons.forEach(function(btn){
+                        try {
+                            // store original content to restore if needed
+                            if (!btn.dataset.originalHtml) btn.dataset.originalHtml = btn.innerHTML;
+                            btn.disabled = true;
+                            btn.classList && btn.classList.add('opacity-60','cursor-not-allowed');
+                            // set loading UI
+                            var spinner = '<svg width="16" height="16" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" class="inline-block mr-2 align-middle"><defs><linearGradient x1="8.042%" y1="0%" x2="65.682%" y2="23.865%" id="a"><stop stop-color="#fff" stop-opacity="0" offset="0%"/><stop stop-color="#fff" stop-opacity="0.631" offset="63.146%"/><stop stop-color="#fff" offset="100%"/></linearGradient></defs><g fill="none" fill-rule="evenodd"><g transform="translate(1 1)"><path d="M36 18c0-9.94-8.06-18-18-18" stroke="url(#a)" stroke-width="2"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="1s" repeatCount="indefinite"/></path></g></g></svg>';
+                            try {
+                                btn.innerHTML = spinner + '<span class="align-middle">Memproses...</span>';
+                            } catch(e) {}
+                        } catch(ex){}
+                    });
+                    // show loading UI immediately
+                    // notification appears shortly after loading starts
+                    var notifyDelay = 500; // ms
+                    showSubmissionNotificationDelay = function(msg) { setTimeout(function(){ showSubmissionNotification(msg); }, notifyDelay); };
+                    showSubmissionNotificationDelay('Laporan terkirim');
+                    // submit after total 2 seconds
+                    setTimeout(function(){ formEl.submit(); }, 2000);
+                });
+            }
+
+        });
+    </script>
+    </div>
+{% endblock content %}

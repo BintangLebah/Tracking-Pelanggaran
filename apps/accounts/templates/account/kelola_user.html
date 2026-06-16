@@ -1,0 +1,259 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    
+        <!-- ===== KONTEN UTAMA ===== -->
+        <div class="main-content relative z-10 min-h-screen">
+
+            <!-- Navbar -->
+            <header class="sticky top-0 z-20 flex items-center justify-between px-4 md:px-6 border-b" style="background: var(--navbar-bg); border-color: var(--border); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); height: 64px;">
+                <div class="flex items-center gap-3">
+                    <label for="drawer-toggle" class="hamburger-btn w-11 h-11 flex items-center justify-center rounded-lg cursor-pointer" style="color: var(--text-muted);" aria-label="Buka menu">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </label>
+                    <h1 class="hidden md:block text-lg font-bold" style="color: var(--text-primary);">Kelola User</h1>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button class="relative w-11 h-11 flex items-center justify-center rounded-lg cursor-pointer" style="color: var(--text-muted);" aria-label="Notifikasi">
+                        <i class="fa-solid fa-bell text-base"></i>
+                        <span class="absolute top-1.5 right-1.5 w-[18px] h-[18px] rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center leading-none">3</span>
+                    </button>
+                    <label for="mode-toggle" class="relative cursor-pointer flex items-center ml-1" aria-label="Ganti tema tampilan">
+                        <div class="relative w-[56px] h-[30px] rounded-full transition-colors duration-300 shadow-inner" style="background: var(--border);">
+                            <span class="toggle-thumb absolute top-[3px] left-[3px] w-6 h-6 rounded-full z-10 flex items-center justify-center shadow-md" style="background: linear-gradient(135deg, #4f46e5, #818cf8);">
+                                <span class="thumb-moon text-[11px] leading-none">🌙</span>
+                                <span class="thumb-sun text-[11px] leading-none">☀️</span>
+                            </span>
+                        </div>
+                    </label>
+                </div>
+            </header>
+
+            <!-- ===== AREA KONTEN ===== -->
+            <main class="p-4 md:p-6 mobile-main-pad" style="padding-bottom: 5rem;">
+
+                <!-- ===========================
+                     BARIS AKSI
+                     =========================== -->
+                <div class="mobile-filter-stack flex flex-col md:flex-row items-stretch md:items-center gap-3 mb-5">
+                    <!-- Search -->
+                    <div class="relative flex-1">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-sm" style="color: var(--text-muted);"></i>
+                        <input type="text" placeholder="Cari nama atau username..."
+                            class="w-full pl-10 pr-4 rounded-lg text-sm"
+                            style="background: var(--input-bg); border: 1px solid var(--border); color: var(--text-primary); height: 44px;">
+                    </div>
+                    <!-- Filter Role -->
+                    <select class="rounded-lg text-sm font-medium cursor-pointer"
+                        style="background: var(--input-bg); border: 1px solid var(--border); color: var(--text-primary); height: 44px; min-width: 160px;">
+                        <option>Semua Role</option>
+                        <option>Admin</option>
+                        <option>Guru</option>
+                        <option>OSIS</option>
+                        <option>BK</option>
+                    </select>
+                    <!-- Tombol Tambah -->
+                    <a href="{% url 'account:tambah_user' %}" class="flex items-center justify-center gap-2 rounded-lg text-sm font-bold text-white cursor-pointer border-0 flex-shrink-0 transition-all duration-200 hover:shadow-lg"
+                        style="background: linear-gradient(135deg, #4f46e5, #6366f1); height: 44px; padding: 0 20px;"
+                        onmouseover="this.style.background='linear-gradient(135deg, #4338ca, #4f46e5)'"
+                        onmouseout="this.style.background='linear-gradient(135deg, #4f46e5, #6366f1)'">
+                        <i class="fa-solid fa-plus text-xs"></i> Tambah User
+                    </a>
+                </div>
+
+                <!-- ===========================
+                     TABEL USER
+                     =========================== -->
+                <div class="rounded-xl border overflow-hidden" style="background: var(--card); border-color: var(--border);">
+                    <div class="table-wrap">
+                        <table class="w-full">
+                            <thead>
+                                <tr>
+                                    <th class="w-12 text-center">No</th>
+                                    <th>Nama Lengkap</th>
+                                    <th>Username</th>
+                                    <th>Role</th>
+                                    <th class="hidden md:table-cell">No Telepon</th>
+                                    <th>Status</th>
+                                    <th class="text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Row 1: Admin -->
+                                <tr>
+                                    <td class="text-center"><span class="text-sm font-semibold" style="color: var(--text-muted);">1</span></td>
+                                    <td>
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style="background: linear-gradient(135deg, #4f46e5, #6366f1);">A</div>
+                                            <span class="text-sm font-semibold" style="color: var(--text-primary);">Administrator</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="text-sm">admin</span></td>
+                                    <td><span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background: rgba(99,102,241,0.1); color: #818cf8;">Admin</span></td>
+                                    <td class="hidden md:table-cell"><span class="text-sm">—</span></td>
+                                    <td><span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background: rgba(34,197,94,0.1); color: #22c55e;">Aktif</span></td>
+                                    <td>
+                                        <div class="flex items-center justify-center gap-1.5">
+                                            <button class="btn-action w-9 h-9 rounded-lg flex items-center justify-center cursor-pointer border" style="background: transparent; border-color: var(--border); color: var(--text-muted);" aria-label="Edit"
+                                                onmouseover="this.style.borderColor='#6366f1';this.style.color='#818cf8'"
+                                                onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
+                                                <i class="fa-solid fa-pen text-[11px]"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- Row 2: Guru -->
+                                <tr>
+                                    <td class="text-center"><span class="text-sm font-semibold" style="color: var(--text-muted);">2</span></td>
+                                    <td>
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style="background: linear-gradient(135deg, #059669, #10b981);">BS</div>
+                                            <span class="text-sm font-semibold" style="color: var(--text-primary);">Budi Santoso</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="text-sm">budi.santoso</span></td>
+                                    <td><span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background: rgba(16,185,129,0.1); color: #34d399;">Guru</span></td>
+                                    <td class="hidden md:table-cell"><span class="text-sm">0812-3456-7890</span></td>
+                                    <td><span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background: rgba(34,197,94,0.1); color: #22c55e;">Aktif</span></td>
+                                    <td>
+                                        <div class="flex items-center justify-center gap-1.5">
+                                            <button class="btn-action w-9 h-9 rounded-lg flex items-center justify-center cursor-pointer border" style="background: transparent; border-color: var(--border); color: var(--text-muted);" aria-label="Edit"
+                                                onmouseover="this.style.borderColor='#6366f1';this.style.color='#818cf8'"
+                                                onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
+                                                <i class="fa-solid fa-pen text-[11px]"></i>
+                                            </button>
+                                            <button class="btn-action w-9 h-9 rounded-lg flex items-center justify-center cursor-pointer border" style="background: transparent; border-color: rgba(239,68,68,0.3); color: #f87171;" aria-label="Nonaktifkan"
+                                                onmouseover="this.style.background='rgba(239,68,68,0.08)';this.style.borderColor='#ef4444'"
+                                                onmouseout="this.style.background='transparent';this.style.borderColor='rgba(239,68,68,0.3)'">
+                                                <i class="fa-solid fa-user-slash text-[11px]"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- Row 3: OSIS -->
+                                <tr>
+                                    <td class="text-center"><span class="text-sm font-semibold" style="color: var(--text-muted);">3</span></td>
+                                    <td>
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style="background: linear-gradient(135deg, #d97706, #f59e0b);">RR</div>
+                                            <span class="text-sm font-semibold" style="color: var(--text-primary);">Rizky Ramadhan</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="text-sm">rizky.osis</span></td>
+                                    <td><span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background: rgba(245,158,11,0.1); color: #fbbf24;">OSIS</span></td>
+                                    <td class="hidden md:table-cell"><span class="text-sm">0856-7890-1234</span></td>
+                                    <td><span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background: rgba(34,197,94,0.1); color: #22c55e;">Aktif</span></td>
+                                    <td>
+                                        <div class="flex items-center justify-center gap-1.5">
+                                            <button class="btn-action w-9 h-9 rounded-lg flex items-center justify-center cursor-pointer border" style="background: transparent; border-color: var(--border); color: var(--text-muted);" aria-label="Edit"
+                                                onmouseover="this.style.borderColor='#6366f1';this.style.color='#818cf8'"
+                                                onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
+                                                <i class="fa-solid fa-pen text-[11px]"></i>
+                                            </button>
+                                            <button class="btn-action w-9 h-9 rounded-lg flex items-center justify-center cursor-pointer border" style="background: transparent; border-color: rgba(239,68,68,0.3); color: #f87171;" aria-label="Nonaktifkan"
+                                                onmouseover="this.style.background='rgba(239,68,68,0.08)';this.style.borderColor='#ef4444'"
+                                                onmouseout="this.style.background='transparent';this.style.borderColor='rgba(239,68,68,0.3)'">
+                                                <i class="fa-solid fa-user-slash text-[11px]"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- Row 4: BK -->
+                                <tr>
+                                    <td class="text-center"><span class="text-sm font-semibold" style="color: var(--text-muted);">4</span></td>
+                                    <td>
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style="background: linear-gradient(135deg, #e11d48, #f43f5e);">IH</div>
+                                            <span class="text-sm font-semibold" style="color: var(--text-primary);">Ibu Hj. Misnah</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="text-sm">misnah.bk</span></td>
+                                    <td><span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background: rgba(244,63,94,0.1); color: #fb7185;">BK</span></td>
+                                    <td class="hidden md:table-cell"><span class="text-sm">0813-4567-8901</span></td>
+                                    <td><span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background: rgba(34,197,94,0.1); color: #22c55e;">Aktif</span></td>
+                                    <td>
+                                        <div class="flex items-center justify-center gap-1.5">
+                                            <button class="btn-action w-9 h-9 rounded-lg flex items-center justify-center cursor-pointer border" style="background: transparent; border-color: var(--border); color: var(--text-muted);" aria-label="Edit"
+                                                onmouseover="this.style.borderColor='#6366f1';this.style.color='#818cf8'"
+                                                onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
+                                                <i class="fa-solid fa-pen text-[11px]"></i>
+                                            </button>
+                                            <button class="btn-action w-9 h-9 rounded-lg flex items-center justify-center cursor-pointer border" style="background: transparent; border-color: rgba(239,68,68,0.3); color: #f87171;" aria-label="Nonaktifkan"
+                                                onmouseover="this.style.background='rgba(239,68,68,0.08)';this.style.borderColor='#ef4444'"
+                                                onmouseout="this.style.background='transparent';this.style.borderColor='rgba(239,68,68,0.3)'">
+                                                <i class="fa-solid fa-user-slash text-[11px]"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- Row 5: Guru Nonaktif -->
+                                <tr>
+                                    <td class="text-center"><span class="text-sm font-semibold" style="color: var(--text-muted);">5</span></td>
+                                    <td>
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0" style="background: var(--border); color: var(--text-muted);">SA</div>
+                                            <span class="text-sm font-semibold" style="color: var(--text-primary);">Siti Aminah</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="text-sm">siti.aminah</span></td>
+                                    <td><span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background: rgba(16,185,129,0.1); color: #34d399;">Guru</span></td>
+                                    <td class="hidden md:table-cell"><span class="text-sm">0878-9012-3456</span></td>
+                                    <td><span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background: rgba(239,68,68,0.1); color: #ef4444;">Nonaktif</span></td>
+                                    <td>
+                                        <div class="flex items-center justify-center gap-1.5">
+                                            <button class="btn-action w-9 h-9 rounded-lg flex items-center justify-center cursor-pointer border" style="background: transparent; border-color: var(--border); color: var(--text-muted);" aria-label="Edit"
+                                                onmouseover="this.style.borderColor='#6366f1';this.style.color='#818cf8'"
+                                                onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
+                                                <i class="fa-solid fa-pen text-[11px]"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- Row 6: Admin 2 -->
+                                <tr>
+                                    <td class="text-center"><span class="text-sm font-semibold" style="color: var(--text-muted);">6</span></td>
+                                    <td>
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style="background: linear-gradient(135deg, #4f46e5, #6366f1);">AP</div>
+                                            <span class="text-sm font-semibold" style="color: var(--text-primary);">Andi Prasetyo</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="text-sm">andi.admin</span></td>
+                                    <td><span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background: rgba(99,102,241,0.1); color: #818cf8;">Admin</span></td>
+                                    <td class="hidden md:table-cell"><span class="text-sm">—</span></td>
+                                    <td><span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background: rgba(34,197,94,0.1); color: #22c55e;">Aktif</span></td>
+                                    <td>
+                                        <div class="flex items-center justify-center gap-1.5">
+                                            <button class="btn-action w-9 h-9 rounded-lg flex items-center justify-center cursor-pointer border" style="background: transparent; border-color: var(--border); color: var(--text-muted);" aria-label="Edit"
+                                                onmouseover="this.style.borderColor='#6366f1';this.style.color='#818cf8'"
+                                                onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
+                                                <i class="fa-solid fa-pen text-[11px]"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ===========================
+                     PAGINATION
+                     =========================== -->
+                <div class="flex items-center justify-between mt-4">
+                    <span class="text-xs font-medium" style="color: var(--text-muted);">Menampilkan 1-6 dari 6 data</span>
+                    <div class="flex items-center gap-1.5">
+                        <button class="page-btn page-btn-disabled" aria-label="Halaman sebelumnya">
+                            <i class="fa-solid fa-chevron-left text-[10px]"></i>
+                        </button>
+                        <button class="page-btn page-btn-active" aria-label="Halaman 1">1</button>
+                        <button class="page-btn page-btn-disabled" aria-label="Halaman berikutnya">
+                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+
+{% endblock content %}

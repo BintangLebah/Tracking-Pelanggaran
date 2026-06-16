@@ -1,0 +1,456 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Siswa - V-Track</title>
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --border: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --navbar-bg: rgba(15,23,42,0.85);
+            --table-head: rgba(15,23,42,0.5);
+            --input-bg: #0f172a;
+            --hover-bg: rgba(99,102,241,0.08);
+        }
+        #mode-toggle:checked ~ .page-wrapper {
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --border: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #334155;
+            --text-muted: #64748b;
+            --navbar-bg: rgba(248,250,252,0.85);
+            --table-head: rgba(248,250,252,0.8);
+            --input-bg: #f1f5f9;
+            --hover-bg: rgba(99,102,241,0.06);
+        }
+        body { font-family: 'Inter', system-ui, sans-serif; margin: 0; }
+        a { text-decoration: none; color: inherit; }
+
+        .toggle-thumb { transition: left 0.3s cubic-bezier(0.4,0,0.2,1); }
+        #mode-toggle:checked ~ .page-wrapper .toggle-thumb { left: 29px; }
+        .thumb-sun { display: none; }
+        #mode-toggle:checked ~ .page-wrapper .thumb-sun { display: block; }
+        .thumb-moon { display: block; }
+        #mode-toggle:checked ~ .page-wrapper .thumb-moon { display: none; }
+
+        .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .table-wrap-siswa table { min-width: 880px; }
+        .table-wrap th {
+            background: var(--table-head);
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 12px 16px;
+            text-align: left;
+            white-space: nowrap;
+            border-bottom: 1px solid var(--border);
+        }
+        .table-wrap td {
+            color: var(--text-secondary);
+            font-size: 0.8125rem;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        .table-wrap tbody tr { transition: background 0.15s; }
+        .table-wrap tbody tr:hover { background: var(--hover-bg); }
+        .table-wrap tbody tr:last-child td { border-bottom: none; }
+
+        @media (max-width: 767px) {
+            .col-jk { display: none !important; }
+        }
+
+        @keyframes glow-pulse {
+            0%, 100% { opacity: 0.4; transform: translate(0,0) scale(1); }
+            50% { opacity: 0.7; transform: translate(0,0) scale(1.05); }
+        }
+        .bg-glow { animation: glow-pulse 8s ease-in-out infinite; }
+
+        .back-btn { transition: background 0.15s, color 0.15s; }
+        .back-btn:hover { background: var(--hover-bg); color: var(--text-primary); }
+
+        .btn-emerald {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: #ffffff;
+            transition: opacity 0.15s, transform 0.15s, box-shadow 0.15s;
+        }
+        .btn-emerald:hover {
+            opacity: 0.92;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px -3px rgba(16,185,129,0.4);
+        }
+
+        .icon-btn {
+            transition: background 0.15s, color 0.15s;
+            color: var(--text-muted);
+        }
+        .icon-btn:hover {
+            background: var(--hover-bg);
+            color: var(--text-primary);
+        }
+
+        .input-field {
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            height: 2.75rem;
+            padding: 0 1rem;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            width: 100%;
+        }
+        .input-field::placeholder { color: var(--text-muted); }
+        .input-field:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+        }
+        .select-field {
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            height: 2.75rem;
+            padding: 0 2.25rem 0 1rem;
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            width: 100%;
+        }
+        .select-field:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+        }
+
+        .page-btn {
+            min-width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.5rem;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+            color: var(--text-muted);
+            background: transparent;
+            border: none;
+        }
+        .page-btn:hover { background: var(--hover-bg); color: var(--text-primary); }
+        .page-btn-active {
+            background: #6366f1 !important;
+            color: #ffffff !important;
+            font-weight: 600;
+        }
+        .page-btn-disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+        .page-btn-disabled:hover { background: transparent; color: var(--text-muted); }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.2rem 0.65rem;
+            border-radius: 9999px;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .badge-normal { background: rgba(148,163,184,0.15); color: #94a3b8; }
+        .badge-wajib { background: rgba(244,63,94,0.15); color: #f43f5e; }
+                .badge-osis { background: rgba(16,185,129,0.12); color: #059669; }
+                .badge-mpk { background: rgba(59,130,246,0.08); color: #2563eb; }
+
+        .poin-merah { color: #ef4444 !important; font-weight: 700; }
+        .poin-normal { color: var(--text-primary); font-weight: 600; }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.6875rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            letter-spacing: 0.02em;
+        }
+        .aksi-btn {
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background 0.15s;
+            background: transparent;
+            border: none;
+            font-size: 0.875rem;
+        }
+        .aksi-btn:hover { background: var(--hover-bg); }
+    </style>
+</head>
+<body class="antialiased">
+
+    <input type="checkbox" id="mode-toggle" class="hidden" aria-hidden="true">
+
+    <div class="page-wrapper min-h-screen relative" style="background: var(--bg);">
+
+        <div class="bg-glow pointer-events-none fixed top-[-200px] right-[-200px] w-[550px] h-[550px] rounded-full z-0"
+             style="background: radial-gradient(circle, rgba(99,102,241,0.045) 0%, transparent 70%);"></div>
+        <div class="bg-glow pointer-events-none fixed bottom-[-150px] left-[-150px] w-[400px] h-[400px] rounded-full z-0"
+             style="background: radial-gradient(circle, rgba(99,102,241,0.03) 0%, transparent 70%); animation-delay: -4s;"></div>
+
+        <!-- ===== NAVBAR ===== -->
+        <header class="sticky top-0 z-20 flex items-center justify-between px-4 md:px-6 border-b"
+                style="background: var(--navbar-bg); border-color: var(--border); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); height: 64px;">
+            <div class="flex items-center gap-3">
+                <a href="{% url 'academic:data_kelas' %}" class="back-btn h-11 flex items-center gap-2 px-3 rounded-lg"
+                   style="color: var(--text-muted);" aria-label="Kembali">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                    <span class="text-sm font-medium">Kembali</span>
+                </a>
+                <h1 class="text-lg font-bold" style="color: var(--text-primary);">Data Siswa</h1>
+            </div>
+            <div class="flex items-center gap-2">
+                <button class="relative w-11 h-11 flex items-center justify-center rounded-lg cursor-pointer icon-btn"
+                        aria-label="Notifikasi">
+                    <i class="fa-solid fa-bell text-base"></i>
+                    <span class="absolute top-1.5 right-1.5 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center leading-none"
+                          style="width: 18px; height: 18px;">3</span>
+                </button>
+                <label for="mode-toggle"
+                       class="relative cursor-pointer flex items-center ml-1"
+                       aria-label="Ganti tema tampilan">
+                    <div class="relative w-[56px] h-[30px] rounded-full transition-colors duration-300 shadow-inner"
+                         style="background: var(--border);">
+                        <span class="toggle-thumb absolute top-[3px] left-[3px] w-6 h-6 rounded-full z-10 flex items-center justify-center shadow-md"
+                              style="background: linear-gradient(135deg, #4f46e5, #818cf8);">
+                            <span class="thumb-moon text-[11px] leading-none">🌙</span>
+                            <span class="thumb-sun text-[11px] leading-none">☀️</span>
+                        </span>
+                    </div>
+                </label>
+            </div>
+        </header>
+
+        <!-- ===== KONTEN ===== -->
+        <main class="relative z-10 p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">
+
+            <!-- BARIS AKSI -->
+            <section class="flex flex-col lg:flex-row gap-3 mb-5">
+                <div class="flex flex-col sm:flex-row gap-3 flex-1">
+                    <div class="relative flex-1 min-w-0">
+                        <i class="absolute left-3 top-1/2 -translate-y-1/2 text-xs pointer-events-none" style="color: var(--text-muted);"></i>
+                        <input type="text" placeholder="Cari nama atau NIS..." class="input-field pl-9 w-full">
+                    </div>
+                    <div class="relative w-full sm:w-40 flex-shrink-0">
+                        <select class="select-field w-full">
+                            <option>Semua Status</option>
+                            <option>Normal</option>
+                            <option>Wajib BK</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[10px] pointer-events-none" style="color: var(--text-muted);"></i>
+                    </div>
+                </div>
+                {% if kelas %}
+                <a href="{% url 'academic:tambah_siswa_kelas' kelas.pk %}" type="button" class="btn-emerald h-11 px-5 rounded-lg text-sm font-semibold cursor-pointer flex items-center justify-center gap-2 flex-shrink-0">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    <span>Tambah Siswa</span>
+                </a>
+                {% else %}
+                <a href="{% url 'academic:tambah_siswa' %}" type="button" class="btn-emerald h-11 px-5 rounded-lg text-sm font-semibold cursor-pointer flex items-center justify-center gap-2 flex-shrink-0">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    <span>Tambah Siswa</span>
+                </a>
+                {% endif %}
+            </section>
+
+            <!-- TABEL -->
+            <section class="rounded-xl border overflow-hidden" style="background: var(--card); border-color: var(--border);">
+                <div class="table-wrap table-wrap-siswa">
+                    <table class="w-full">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">No</th>
+                                <th>Siswa</th>
+                                <th>Kelas</th>
+                                <th class="col-jk">Jenis Kelamin</th>
+                                <th>Organisasi</th>
+                                <th>Total Poin</th>
+                                <th>Status</th>
+                                <th style="width: 110px;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if siswa_list %}
+                                {% for siswa in siswa_list %}
+                                    <tr>
+                                        <td style="color: var(--text-muted);">{{ forloop.counter }}</td>
+                                        <td>
+                                            <button type="button" class="profile-open-btn flex items-center gap-3" style="background:transparent;border:0;padding:0;width:100%;text-align:left;" 
+                                                data-nama="{{ siswa.nama|escape }}"
+                                                data-nis="{{ siswa.nis }}"
+                                                data-kelas="{% if siswa.kelas %}{{ siswa.kelas.nama_kelas }}{% else %}-{% endif %}"
+                                                data-jk="{% if siswa.jenis_kelamin == 'L' %}Laki-laki{% else %}Perempuan{% endif %}"
+                                                data-organisasi="{% if siswa.organisasi == 'osis' %}OSIS{% elif siswa.organisasi == 'mpk' %}MPK{% else %}Bukan Anggota{% endif %}"
+                                                data-poin="{{ siswa.total_poin }}"
+                                                data-foto-url="{% if siswa.foto %}{{ siswa.foto.url }}{% else %}{% endif %}"
+                                                data-detail-url="{% url 'academic:detail_siswa' siswa.pk %}">
+                                                {% if siswa.foto %}
+                                                    <img src="{{ siswa.foto.url }}" alt="{{ siswa.nama }}" class="w-9 h-9 rounded-full object-cover" style="width:36px;height:36px;border-radius:9999px;" />
+                                                {% else %}
+                                                    <div class="avatar" style="background: linear-gradient(135deg, #4f46e5, #6366f1);">{{ siswa.nama|slice:":1" }}{{ siswa.nama|slice:"1:2" }}</div>
+                                                {% endif %}
+                                                <div>
+                                                    <p style="font-weight: 600; color: var(--text-primary); line-height: 1.3;">{{ siswa.nama }}</p>
+                                                    <p style="font-size: 0.6875rem; color: var(--text-muted);">NIS: {{ siswa.nis }}</p>
+                                                </div>
+                                            </button>
+                                        </td>
+                                        <td>{{ siswa.kelas.nama_kelas }}</td>
+                                        <td class="col-jk">{% if siswa.jenis_kelamin == 'L' %}Laki-laki{% else %}Perempuan{% endif %}</td>
+                                        <td>
+                                            {% if siswa.organisasi == 'osis' %}
+                                                <span class="badge badge-osis">OSIS</span>
+                                            {% elif siswa.organisasi == 'mpk' %}
+                                                <span class="badge badge-mpk">MPK</span>
+                                            {% else %}
+                                                <span class="badge badge-normal">Bukan Anggota</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="{% if siswa.total_poin >= 75 %}poin-merah{% else %}poin-normal{% endif %}">{{ siswa.total_poin }}</td>
+                                        <td>{% if siswa.is_wajib_bk %}<span class="badge badge-wajib">WAJIB BK</span>{% else %}<span class="badge badge-normal">Normal</span>{% endif %}</td>
+                                        <td>
+                                            <div class="flex items-center justify-center gap-1.5">
+                                                <a href="{% url 'academic:detail_siswa' siswa.pk %}" class="btn-action w-9 h-9 rounded-lg flex items-center justify-center cursor-pointer border" style="background: transparent; border-color: var(--border); color: var(--text-muted);" aria-label="Detail"
+                                                    onmouseover="this.style.borderColor='#6366f1';this.style.color='#818cf8'"
+                                                    onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'"><i class="fa-solid fa-eye text-[11px]"></i></a>
+                                                <a href="{% url 'academic:edit_siswa' siswa.pk %}" class="btn-action w-9 h-9 rounded-lg flex items-center justify-center cursor-pointer border" style="background: transparent; border-color: var(--border); color: var(--text-muted);" aria-label="Edit"
+                                                    onmouseover="this.style.borderColor='#6366f1';this.style.color='#818cf8'"
+                                                    onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'"><i class="fa-solid fa-pen text-[11px]"></i></a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="8" class="text-center py-8"><span class="text-sm" style="color: var(--text-muted);">Tidak ada data siswa.</span></td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- PROFILE LIGHTBOX MODAL -->
+            <div id="profileModal" class="fixed inset-0 z-50 items-center justify-center" style="display:none;">
+                <div class="modal-backdrop absolute inset-0" style="background: rgba(2,6,23,0.6);"></div>
+                <div class="modal-panel relative z-10 w-full max-w-md mx-4 rounded-xl shadow-lg" style="background: var(--card); border: 1px solid var(--border);">
+                    <div class="p-4">
+                        <button type="button" id="profileClose" class="absolute top-3 right-3 text-xl" style="color: var(--text-muted); background: transparent; border: none;">&times;</button>
+                        <div class="flex items-center gap-4">
+                            <img id="modalFoto" src="" alt="foto" class="w-20 h-20 rounded-full object-cover" style="width:80px;height:80px;" />
+                            <div>
+                                <h3 id="modalNama" style="color: var(--text-primary); font-weight:700; margin:0;">Nama</h3>
+                                <p id="modalNis" style="color: var(--text-muted); margin:0;">NIS</p>
+                                <p id="modalKelas" style="color: var(--text-secondary); margin-top:6px;">Kelas</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 grid grid-cols-2 gap-2">
+                            <div style="color: var(--text-muted);">Jenis Kelamin</div>
+                            <div id="modalJk" style="color: var(--text-primary); font-weight:600; text-align:right;"></div>
+                            <div style="color: var(--text-muted);">Organisasi</div>
+                            <div id="modalOrg" style="color: var(--text-primary); font-weight:600; text-align:right;"></div>
+                            <div style="color: var(--text-muted);">Total Poin</div>
+                            <div id="modalPoin" style="color: var(--text-primary); font-weight:700; text-align:right;"></div>
+                        </div>
+                        <div class="mt-4 flex justify-end gap-2">
+                            <a id="modalDetailLink" href="#" class="btn-emerald h-9 px-3 rounded-lg text-sm font-semibold flex items-center gap-2">Lihat Detail</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGINATION -->
+            <section class="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4">
+                <p class="text-xs" style="color: var(--text-muted);">Menampilkan 1–10 dari 10 data</p>
+                <div class="flex items-center gap-1">
+                    <button class="page-btn page-btn-disabled" disabled aria-label="Halaman sebelumnya">
+                        <i class="fa-solid fa-chevron-left text-xs"></i>
+                    </button>
+                    <button class="page-btn page-btn-active">1</button>
+                    <button class="page-btn page-btn-disabled" disabled aria-label="Halaman berikutnya">
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                </div>
+            </section>
+
+        </main>
+    </div>
+</body>
+<script>
+// Profile modal logic
+function openProfileModal(data){
+    document.getElementById('modalNama').textContent = data.nama || '-';
+    document.getElementById('modalNis').textContent = 'NIS: ' + (data.nis || '-');
+    document.getElementById('modalKelas').textContent = data.kelas || '-';
+    document.getElementById('modalJk').textContent = data.jk || '-';
+    document.getElementById('modalOrg').textContent = data.org || '-';
+    document.getElementById('modalPoin').textContent = data.poin || '0';
+    var foto = document.getElementById('modalFoto');
+    if(data.foto){ foto.src = data.foto; foto.style.display = 'block'; } else { foto.src = ''; foto.style.display = 'none'; }
+    document.getElementById('modalDetailLink').href = data.detail || '#';
+    document.getElementById('profileModal').style.display = 'flex';
+}
+function closeProfileModal(){ document.getElementById('profileModal').style.display = 'none'; }
+document.addEventListener('click', function(e){
+    if(e.target.closest('.profile-open-btn')){
+        var btn = e.target.closest('.profile-open-btn');
+        openProfileModal({
+            nama: btn.getAttribute('data-nama'),
+            nis: btn.getAttribute('data-nis'),
+            kelas: btn.getAttribute('data-kelas'),
+            jk: btn.getAttribute('data-jk'),
+            org: btn.getAttribute('data-organisasi'),
+            poin: btn.getAttribute('data-poin'),
+            foto: btn.getAttribute('data-foto-url'),
+            detail: btn.getAttribute('data-detail-url')
+        });
+    }
+    if(e.target.id === 'profileClose' || e.target.id === 'profileModal'){
+        closeProfileModal();
+    }
+});
+// close when clicking backdrop
+var _profileModal = document.getElementById('profileModal');
+if(_profileModal){
+    _profileModal.addEventListener('click', function(e){ if(e.target === this) closeProfileModal(); });
+}
+</script>
+
+</html>
+</html>

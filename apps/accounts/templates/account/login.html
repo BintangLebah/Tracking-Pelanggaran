@@ -1,0 +1,349 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - V-Track</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    <style>
+        /* === Variabel Tema (Default: Dark Mode) === */
+        :root {
+            --bg-from: #0f172a;
+            --bg-to: #1e293b;
+            --bg-card: #1e293b;
+            --border: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --input-bg: #0f172a;
+            --input-border: #334155;
+            --input-text: #e2e8f0;
+            --input-placeholder: #64748b;
+            --glow-color: rgba(99, 102, 241, 0.12);
+            --toggle-bg: #1e293b;
+            --card-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.6);
+            --logo-glow: 0 8px 30px rgba(99, 102, 241, 0.35);
+        }
+
+        /* === Variabel Light Mode (Ketika Checkbox Dicentang) === */
+        #mode-toggle:checked ~ .page-wrapper {
+            --bg-from: #f1f5f9;
+            --bg-to: #ffffff;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #334155;
+            --text-muted: #64748b;
+            --input-bg: #f8fafc;
+            --input-border: #cbd5e1;
+            --input-text: #0f172a;
+            --input-placeholder: #94a3b8;
+            --glow-color: rgba(99, 102, 241, 0.06);
+            --toggle-bg: #ffffff;
+            --card-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.08);
+            --logo-glow: 0 8px 30px rgba(99, 102, 241, 0.2);
+        }
+
+        /* === Font Global === */
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        /* === Placeholder Input === */
+        input::placeholder {
+            color: var(--input-placeholder);
+        }
+
+        /* === Focus Input === */
+        input:focus {
+            border-color: #6366f1 !important;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+            outline: none;
+        }
+
+        /* === Ganti Ikon Toggle (CSS-Only) === */
+        #mode-toggle + label .icon-sun { display: none; }
+        #mode-toggle + label .icon-moon { display: inline-flex; }
+        #mode-toggle:checked + label .icon-sun { display: inline-flex; }
+        #mode-toggle:checked + label .icon-moon { display: none; }
+
+        /* === Animasi Logo Melayang === */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        .logo-icon {
+            animation: float 3.5s ease-in-out infinite;
+        }
+
+        /* === Animasi Glow Latar Belakang === */
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
+        }
+        .bg-glow {
+            animation: pulse-glow 6s ease-in-out infinite;
+        }
+
+        /* === Tombol Login: Hover & Active === */
+        .btn-login {
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+            transition: all 0.2s ease;
+        }
+        .btn-login:hover {
+            background: linear-gradient(135deg, #4338ca 0%, #4f46e5 100%);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.35);
+        }
+        .btn-login:active {
+            transform: scale(0.97);
+            box-shadow: 0 2px 10px rgba(99, 102, 241, 0.2);
+        }
+
+        /* === Toggle Button Hover === */
+        .toggle-btn {
+            transition: all 0.2s ease;
+        }
+        .toggle-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .toggle-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* === Card Hover Halus === */
+        .login-card {
+            transition: all 0.3s ease;
+        }
+
+        /* === Garis Dekoratif Atas Card === */
+        .card-accent {
+            background: linear-gradient(90deg, #4f46e5, #818cf8, #4f46e5);
+            background-size: 200% 100%;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        @keyframes shimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+    </style>
+</head>
+<body class="m-0 p-0 antialiased">
+
+    <!-- Checkbox Tersembunyi untuk Toggle Tema (CSS-Only) -->
+    <input type="checkbox" id="mode-toggle" class="hidden" aria-hidden="true">
+
+    <!-- Tombol Toggle Tema (Pojok Kanan Atas) -->
+    <label for="mode-toggle"
+        class="toggle-btn fixed top-4 right-4 z-50 w-12 h-12 flex items-center justify-center rounded-full cursor-pointer shadow-lg"
+        style="background: var(--toggle-bg); border: 1px solid var(--border);"
+        aria-label="Ganti tema tampilan">
+        <span class="icon-sun items-center justify-center text-lg leading-none">☀️</span>
+        <span class="icon-moon items-center justify-center text-lg leading-none">🌙</span>
+    </label>
+
+    <!-- Wrapper Halaman Utama -->
+    <div class="page-wrapper min-h-screen flex items-center justify-center px-4 py-8 relative overflow-hidden"
+        style="background: linear-gradient(160deg, var(--bg-from) 0%, var(--bg-to) 100%);">
+
+        <!-- Dekorasi Glow Latar Belakang -->
+        <div class="bg-glow absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[480px] h-[480px] rounded-full pointer-events-none"
+            style="background: radial-gradient(circle, var(--glow-color) 0%, transparent 70%);"></div>
+
+        <!-- Dekorasi Titik Kecil -->
+        <div class="absolute top-[15%] left-[10%] w-1.5 h-1.5 rounded-full opacity-30" style="background: #6366f1;"></div>
+        <div class="absolute top-[25%] right-[15%] w-1 h-1 rounded-full opacity-20" style="background: #818cf8;"></div>
+        <div class="absolute bottom-[20%] left-[20%] w-1 h-1 rounded-full opacity-25" style="background: #6366f1;"></div>
+        <div class="absolute bottom-[30%] right-[10%] w-1.5 h-1.5 rounded-full opacity-15" style="background: #818cf8;"></div>
+
+        <!-- Konten Login -->
+        <div class="w-full max-w-[400px] relative z-10">
+
+            <!-- Logo & Identitas Aplikasi -->
+            <div class="text-center mb-8">
+                <!-- Ikon Logo -->
+                <div class="logo-icon inline-flex items-center justify-center w-18 h-18 rounded-2xl mb-5 shadow-xl"
+                    style="width: 72px; height: 72px; background: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #818cf8 100%); box-shadow: var(--logo-glow);">
+                    <i class="fa-solid fa-shield-halved text-3xl text-white drop-shadow-sm"></i>
+                </div>
+                <!-- Nama Aplikasi -->
+                <h1 class="text-4xl sm:text-5xl font-black tracking-tight leading-none" style="color: var(--text-primary);">
+                    V-Track
+                </h1>
+                <!-- Subjudul -->
+                <p class="mt-2.5 text-sm font-medium tracking-wide" style="color: var(--text-muted);">
+                    Sistem Informasi Pelanggaran Siswa
+                </p>
+            </div>
+
+            <!-- Card Form Login -->
+            <div class="login-card rounded-xl overflow-hidden"
+                style="background: var(--bg-card); border: 1px solid var(--border); box-shadow: var(--card-shadow);">
+
+                <!-- Garis Aksen Dekoratif Atas Card -->
+                <div class="card-accent h-1 w-full"></div>
+
+                <div class="p-6 sm:p-8">
+                    <!-- Judul Form -->
+                    <h2 class="text-lg font-bold mb-1" style="color: var(--text-primary);">
+                        Masuk ke Akun
+                    </h2>
+                    <p class="text-xs mb-6" style="color: var(--text-muted);">
+                        Silakan masukkan kredensial Anda untuk melanjutkan
+                    </p>
+
+                    <form action="#" method="POST" autocomplete="off">
+                        {% csrf_token %}
+
+                        <!-- Field Username -->
+                        <div class="mb-4">
+                            <label for="username" class="block text-sm font-semibold mb-2" style="color: var(--text-secondary);">
+                                Username
+                            </label>
+                            <div class="relative">
+                                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style="color: var(--text-muted);">
+                                    <i class="fa-solid fa-user text-sm"></i>
+                                </span>
+                                <input
+                                    type="text"
+                                    id="username"
+                                    name="username"
+                                    placeholder="Masukkan username"
+                                    required
+                                    class="w-full pl-11 pr-4 rounded-lg text-sm"
+                                    style="background: var(--input-bg); border: 1px solid var(--input-border); color: var(--input-text); height: 48px;"
+                                >
+                            </div>
+                            {% if form and form.username.errors %}
+                                {% for err in form.username.errors %}
+                                    <p class="text-xs text-red-500 mt-1">{{ err }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Field Password -->
+                        <div class="mb-6">
+                            <label for="password" class="block text-sm font-semibold mb-2" style="color: var(--text-secondary);">
+                                Password
+                            </label>
+                            <div class="relative">
+                                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style="color: var(--text-muted);">
+                                    <i class="fa-solid fa-lock text-sm"></i>
+                                </span>
+                                <input
+                                    type="password"
+                                    id="password"
+                                    name="password"
+                                    placeholder="Masukkan password"
+                                    required
+                                    class="w-full pl-11 pr-12 rounded-lg text-sm"
+                                    style="background: var(--input-bg); border: 1px solid var(--input-border); color: var(--input-text); height: 48px;"
+                                >
+                                <!-- Icon berada di dalam area input (di atas input, positioned absolute) -->
+                                <button type="button" id="togglePassword" aria-label="Tampilkan password"
+                                        style="position:absolute; right:0.6rem; top:50%; transform:translateY(-50%); height:32px; width:32px; border-radius:6px; background:transparent; border:none; color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:2;">
+                                    <i class="fa-solid fa-eye-slash" id="iconPassword" style="font-size:14px;"></i>
+                                </button>
+                            </div>
+                            {% if form and form.password.errors %}
+                                {% for err in form.password.errors %}
+                                    <p class="text-xs mt-1" style="color: #ff0033; font-weight:700;">{{ err }} !!</p>
+                                {% endfor %}
+                            {% endif %}
+                            {# Also display messages (e.g., invalid login) under password field for prominence #}
+                            {% if messages %}
+                                {% for message in messages %}
+                                    {% if 'error' in message.tags %}
+                                        <p class="text-xs mt-1" style="color: #ff0033; font-weight:700;">{{ message }} !!</p>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Tombol Masuk -->
+                        <button
+                            type="submit"
+                            class="btn-login w-full rounded-lg text-white font-bold text-sm cursor-pointer border-0"
+                            style="height: 48px; letter-spacing: 0.025em;">
+                            <i class="fa-solid fa-right-to-bracket mr-2"></i>Masuk
+                        </button>
+                    </form>
+
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            try {
+                                var usernameInput = document.getElementById('username');
+                                if (!usernameInput) return;
+                                // Restore saved username from localStorage (so input doesn't clear on redirect/error)
+                                var saved = null;
+                                try { saved = localStorage.getItem('vtrack_login_username'); } catch(e) { saved = null; }
+                                if (saved && usernameInput.value.trim() === '') {
+                                    usernameInput.value = saved;
+                                }
+                                // Save on every input change
+                                usernameInput.addEventListener('input', function (e) {
+                                    try { localStorage.setItem('vtrack_login_username', this.value); } catch(err) {}
+                                });
+                                // Clear stored username on successful navigation away (optional)
+                                // Do NOT clear on submit so the value remains if login fails and page reloads.
+
+                                // Accessibility: focus password if messages/errors present
+                                try {
+                                    var errorEls = document.querySelectorAll('.text-xs[style*="#ff0033"], .text-xs.text-red-500');
+                                    if (errorEls && errorEls.length > 0) {
+                                        var pwd = document.getElementById('password');
+                                        if (pwd) pwd.focus();
+                                    }
+                                } catch(e) {}
+
+                                // Password visibility toggle
+                                try {
+                                    var toggleBtn = document.getElementById('togglePassword');
+                                    var pwdInput = document.getElementById('password');
+                                    var icon = document.getElementById('iconPassword');
+                                    if (toggleBtn && pwdInput && icon) {
+                                        toggleBtn.addEventListener('click', function(e){
+                                            e.preventDefault();
+                                            if (pwdInput.type === 'password') {
+                                                pwdInput.type = 'text';
+                                                icon.classList.remove('fa-eye-slash');
+                                                icon.classList.add('fa-eye');
+                                                toggleBtn.setAttribute('aria-label','Sembunyikan password');
+                                            } else {
+                                                pwdInput.type = 'password';
+                                                icon.classList.remove('fa-eye');
+                                                icon.classList.add('fa-eye-slash');
+                                                toggleBtn.setAttribute('aria-label','Tampilkan password');
+                                            }
+                                        });
+                                    }
+                                } catch(e) {}
+                            } catch(e) {}
+                        });
+                    </script>
+
+
+
+                    <!-- Teks Lupa Password -->
+                    <div class="mt-5 pt-5" style="border-top: 1px solid var(--border);">
+                        <p class="text-center text-xs" style="color: var(--text-muted);">
+                            <i class="fa-solid fa-circle-info mr-1 opacity-60"></i>
+                            Lupa password? Hubungi Admin
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <p class="text-center text-xs mt-6 opacity-50" style="color: var(--text-muted);">
+                &copy; 2025 V-Track &mdash; Hak cipta dilindungi
+            </p>
+        </div>
+    </div>
+</body>
+</html> 

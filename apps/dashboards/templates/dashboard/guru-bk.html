@@ -1,0 +1,362 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+        <!-- ===== KONTEN UTAMA ===== -->
+        <div class="main-content relative z-10 min-h-screen">
+
+            <!-- Navbar -->
+            <header class="sticky top-0 z-20 flex items-center justify-between px-4 md:px-6 border-b" style="background: var(--navbar-bg); border-color: var(--border); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); height: 64px;">
+                <div class="flex items-center gap-3">
+                    <label for="drawer-toggle" class="hamburger-btn w-11 h-11 flex items-center justify-center rounded-lg cursor-pointer" style="color: var(--text-muted);" aria-label="Buka menu">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </label>
+                    <h1 class="hidden md:block text-lg font-bold" style="color: var(--text-primary);">Dashboard</h1>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button class="relative w-11 h-11 flex items-center justify-center rounded-lg cursor-pointer" style="color: var(--text-muted);" aria-label="Notifikasi">
+                        <i class="fa-solid fa-bell text-base"></i>
+                        <span class="absolute top-1.5 right-1.5 w-[18px] h-[18px] rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center leading-none">5</span>
+                    </button>
+                    <label for="mode-toggle" class="relative cursor-pointer flex items-center ml-1" aria-label="Ganti tema tampilan">
+                        <div class="relative w-[56px] h-[30px] rounded-full transition-colors duration-300 shadow-inner" style="background: var(--border);">
+                            <span class="toggle-thumb absolute top-[3px] left-[3px] w-6 h-6 rounded-full z-10 flex items-center justify-center shadow-md" style="background: linear-gradient(135deg, #e11d48, #f43f5e);">
+                                <span class="thumb-moon text-[11px] leading-none">🌙</span>
+                                <span class="thumb-sun text-[11px] leading-none">☀️</span>
+                            </span>
+                        </div>
+                    </label>
+                </div>
+            </header>
+
+            <!-- ===== AREA KONTEN ===== -->
+            <main class="p-4 md:p-6 mobile-main-pad" style="padding-bottom: 5rem;">
+
+                <!-- ===========================
+                     SECTION 1 — KARTU STATISTIK
+                     =========================== -->
+                <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 mb-6 md:mb-8">
+
+                    <!-- Menunggu Persetujuan — PALING MENCOLOK -->
+                    <div class="stat-card rounded-xl p-4 border-2" style="background: var(--card); border-color: rgba(234,179,8,0.4); box-shadow: 0 0 0 3px rgba(234,179,8,0.1);">
+                        <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-3" style="background: rgba(234,179,8,0.15);">
+                            <i class="fa-solid fa-clock text-yellow-400 text-base"></i>
+                        </div>
+                        <p class="text-2xl sm:text-3xl font-extrabold leading-none" style="color: #eab308;">5</p>
+                        <p class="text-[11px] mt-1.5 font-medium" style="color: var(--text-muted);">Menunggu Persetujuan</p>
+                    </div>
+
+                    <!-- Disetujui Bulan Ini -->
+                    <div class="stat-card rounded-xl p-4 border-l-4" style="background: var(--card); border-color: var(--border); border-left-color: #10b981;">
+                        <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-3" style="background: rgba(16,185,129,0.12);">
+                            <i class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+                        </div>
+                        <p class="text-2xl sm:text-3xl font-extrabold leading-none" style="color: var(--text-primary);">23</p>
+                        <p class="text-[11px] mt-1.5 font-medium" style="color: var(--text-muted);">Disetujui Bulan Ini</p>
+                    </div>
+
+                    <!-- Ditolak Bulan Ini -->
+                    <div class="stat-card rounded-xl p-4 border-l-4" style="background: var(--card); border-color: var(--border); border-left-color: #ef4444;">
+                        <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-3" style="background: rgba(239,68,68,0.12);">
+                            <i class="fa-solid fa-circle-xmark text-red-400 text-base"></i>
+                        </div>
+                        <p class="text-2xl sm:text-3xl font-extrabold leading-none" style="color: var(--text-primary);">2</p>
+                        <p class="text-[11px] mt-1.5 font-medium" style="color: var(--text-muted);">Ditolak Bulan Ini</p>
+                    </div>
+
+                    <!-- Siswa Wajib BK — UKURAN LEBAR BESAR -->
+                    <div class="stat-card rounded-xl p-5 border-2" style="background: var(--card); border-color: rgba(244,63,94,0.45); box-shadow: 0 0 0 3px rgba(244,63,94,0.12); grid-row: span 1;">
+                        <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-3" style="background: rgba(244,63,94,0.15);">
+                            <i class="fa-solid fa-bell text-rose-400 text-lg"></i>
+                        </div>
+                        <p class="text-3xl sm:text-4xl font-extrabold leading-none" style="color: #f43f5e;">3</p>
+                        <p class="text-[11px] mt-1.5 font-medium" style="color: var(--text-muted);">Siswa Wajib BK</p>
+                    </div>
+
+                    <!-- Total Siswa -->
+                    <div class="stat-card rounded-xl p-4 border-l-4 col-span-2 md:col-span-1" style="background: var(--card); border-color: var(--border); border-left-color: #6366f1;">
+                        <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-3" style="background: rgba(99,102,241,0.12);">
+                            <i class="fa-solid fa-users text-indigo-400 text-base"></i>
+                        </div>
+                        <p class="text-2xl sm:text-3xl font-extrabold leading-none" style="color: var(--text-primary);">246</p>
+                        <p class="text-[11px] mt-1.5 font-medium" style="color: var(--text-muted);">Total Siswa</p>
+                    </div>
+                </section>
+
+                <!-- ===========================
+                     SECTION 2 — AKUMULASI POIN PER KELAS
+                     =========================== -->
+                <section class="mb-6 md:mb-8">
+                    <div class="mb-4">
+                        <h2 class="text-base font-bold" style="color: var(--text-primary);">Akumulasi Poin Per Kelas</h2>
+                        <p class="text-xs mt-0.5" style="color: var(--text-muted);">Ringkasan poin pelanggaran keseluruhan per kelas</p>
+                    </div>
+                    <div class="rounded-xl border overflow-hidden" style="background: var(--card); border-color: var(--border);">
+                        <div class="table-wrap">
+                            <table class="w-full">
+                                <thead>
+                                    <tr>
+                                        <th class="pl-5">Nama Kelas</th>
+                                        <th>Tingkat</th>
+                                        <th>Jumlah Siswa</th>
+                                        <th>Akumulasi Poin</th>
+                                        <th>Siswa Wajib BK</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="pl-5"><span class="text-sm font-semibold" style="color: var(--text-primary);">X IPA 1</span></td>
+                                        <td><span class="text-sm">10</span></td>
+                                        <td><span class="text-sm">36</span></td>
+                                        <td>
+                                            <div class="flex items-center gap-2.5">
+                                                <div class="flex-1 h-2 rounded-full overflow-hidden" style="background: rgba(234,179,8,0.12); min-width: 60px;">
+                                                    <div class="progress-fill h-full rounded-full" style="width: 42%; background: #eab308;"></div>
+                                                </div>
+                                                <span class="text-xs font-bold w-7 text-right" style="color: #eab308;">42</span>
+                                            </div>
+                                        </td>
+                                        <td><span class="text-sm" style="color: var(--text-muted);">—</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="pl-5"><span class="text-sm font-semibold" style="color: var(--text-primary);">X IPA 2</span></td>
+                                        <td><span class="text-sm">10</span></td>
+                                        <td><span class="text-sm">34</span></td>
+                                        <td>
+                                            <div class="flex items-center gap-2.5">
+                                                <div class="flex-1 h-2 rounded-full overflow-hidden" style="background: rgba(34,197,94,0.12); min-width: 60px;">
+                                                    <div class="progress-fill h-full rounded-full" style="width: 18%; background: #22c55e;"></div>
+                                                </div>
+                                                <span class="text-xs font-bold w-7 text-right" style="color: #22c55e;">18</span>
+                                            </div>
+                                        </td>
+                                        <td><span class="text-sm" style="color: var(--text-muted);">—</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="pl-5"><span class="text-sm font-semibold" style="color: var(--text-primary);">XI IPA 1</span></td>
+                                        <td><span class="text-sm">11</span></td>
+                                        <td><span class="text-sm">32</span></td>
+                                        <td>
+                                            <div class="flex items-center gap-2.5">
+                                                <div class="flex-1 h-2 rounded-full overflow-hidden" style="background: rgba(244,63,94,0.12); min-width: 60px;">
+                                                    <div class="progress-fill h-full rounded-full" style="width: 73%; background: #f43f5e;"></div>
+                                                </div>
+                                                <span class="text-xs font-bold w-7 text-right" style="color: #f43f5e;">73</span>
+                                            </div>
+                                        </td>
+                                        <td><span class="text-sm font-bold" style="color: #f43f5e;">2</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="pl-5"><span class="text-sm font-semibold" style="color: var(--text-primary);">XI IPA 2</span></td>
+                                        <td><span class="text-sm">11</span></td>
+                                        <td><span class="text-sm">33</span></td>
+                                        <td>
+                                            <div class="flex items-center gap-2.5">
+                                                <div class="flex-1 h-2 rounded-full overflow-hidden" style="background: rgba(234,179,8,0.12); min-width: 60px;">
+                                                    <div class="progress-fill h-full rounded-full" style="width: 38%; background: #eab308;"></div>
+                                                </div>
+                                                <span class="text-xs font-bold w-7 text-right" style="color: #eab308;">38</span>
+                                            </div>
+                                        </td>
+                                        <td><span class="text-sm" style="color: var(--text-muted);">—</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="pl-5"><span class="text-sm font-semibold" style="color: var(--text-primary);">XII IPA 1</span></td>
+                                        <td><span class="text-sm">12</span></td>
+                                        <td><span class="text-sm">30</span></td>
+                                        <td>
+                                            <div class="flex items-center gap-2.5">
+                                                <div class="flex-1 h-2 rounded-full overflow-hidden" style="background: rgba(249,115,22,0.12); min-width: 60px;">
+                                                    <div class="progress-fill h-full rounded-full" style="width: 55%; background: #f97316;"></div>
+                                                </div>
+                                                <span class="text-xs font-bold w-7 text-right" style="color: #f97316;">55</span>
+                                            </div>
+                                        </td>
+                                        <td><span class="text-sm font-bold" style="color: #f43f5e;">1</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="pl-5"><span class="text-sm font-semibold" style="color: var(--text-primary);">XII IPA 2</span></td>
+                                        <td><span class="text-sm">12</span></td>
+                                        <td><span class="text-sm">31</span></td>
+                                        <td>
+                                            <div class="flex items-center gap-2.5">
+                                                <div class="flex-1 h-2 rounded-full overflow-hidden" style="background: rgba(34,197,94,0.12); min-width: 60px;">
+                                                    <div class="progress-fill h-full rounded-full" style="width: 12%; background: #22c55e;"></div>
+                                                </div>
+                                                <span class="text-xs font-bold w-7 text-right" style="color: #22c55e;">12</span>
+                                            </div>
+                                        </td>
+                                        <td><span class="text-sm" style="color: var(--text-muted);">—</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="px-5 py-3.5 border-t flex flex-wrap items-center gap-x-5 gap-y-2" style="border-color: var(--border);">
+                            <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background: #22c55e;"></span><span class="text-[11px] font-medium" style="color: var(--text-muted);">Aman (&lt;30)</span></div>
+                            <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background: #eab308;"></span><span class="text-[11px] font-medium" style="color: var(--text-muted);">Waspada (30-50)</span></div>
+                            <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background: #f97316;"></span><span class="text-[11px] font-medium" style="color: var(--text-muted);">Bahaya (50-70)</span></div>
+                            <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background: #f43f5e;"></span><span class="text-[11px] font-medium" style="color: var(--text-muted);">Kritis (&gt;70)</span></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===========================
+                     SECTION 3 — LAPORAN MASUK TERBARU
+                     =========================== -->
+                <section>
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h2 class="text-base font-bold" style="color: var(--text-primary);">Laporan Masuk Terbaru</h2>
+                            <p class="text-xs mt-0.5" style="color: var(--text-muted);">Laporan pelanggaran yang perlu ditinjau</p>
+                        </div>
+                        <a href="#" class="text-xs font-semibold flex items-center gap-1 transition-colors duration-150 hover:opacity-80" style="color: #fb7185;">
+                            Lihat Semua <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                        </a>
+                    </div>
+                    <div class="rounded-xl border overflow-hidden" style="background: var(--card); border-color: var(--border);">
+                        <div class="table-wrap">
+                            <table class="w-full">
+                                <thead>
+                                    <tr>
+                                        <th>Tanggal</th>
+                                        <th>Nama Siswa</th>
+                                        <th>Kelas</th>
+                                        <th>Jenis Pelanggaran</th>
+                                        <th>Poin</th>
+                                        <th>Oleh</th>
+                                        <th>Status</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Baris Menunggu -->
+                                    <tr>
+                                        <td><span class="text-sm">21 Mei 2025</span></td>
+                                        <td><span class="text-sm font-semibold" style="color: var(--text-primary);">Ahmad Fadillah</span></td>
+                                        <td><span class="text-sm">XII IPA 1</span></td>
+                                        <td><span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background: rgba(244,63,94,0.1); color: #f43f5e;">Membolos</span></td>
+                                        <td><span class="text-sm font-bold" style="color: #f43f5e;">+20</span></td>
+                                        <td><span class="text-sm">Pak Budi</span></td>
+                                        <td><span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background: rgba(234,179,8,0.1); color: #eab308;"><i class="fa-solid fa-clock text-[9px] mr-1"></i>Menunggu</span></td>
+                                        <td>
+                                            <button class="btn-proses inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold text-white cursor-pointer border-0" style="background: linear-gradient(135deg, #e11d48, #f43f5e); height: 32px; min-width: 70px; justify-content: center;">
+                                                <i class="fa-solid fa-gavel text-[10px]"></i> Proses
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <!-- Baris Menunggu -->
+                                    <tr>
+                                        <td><span class="text-sm">21 Mei 2025</span></td>
+                                        <td><span class="text-sm font-semibold" style="color: var(--text-primary);">Siti Nurhaliza</span></td>
+                                        <td><span class="text-sm">XI IPA 1</span></td>
+                                        <td><span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background: rgba(234,179,8,0.1); color: #eab308;">HP di Kelas</span></td>
+                                        <td><span class="text-sm font-bold" style="color: #f97316;">+15</span></td>
+                                        <td><span class="text-sm">Bu Sari</span></td>
+                                        <td><span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background: rgba(234,179,8,0.1); color: #eab308;"><i class="fa-solid fa-clock text-[9px] mr-1"></i>Menunggu</span></td>
+                                        <td>
+                                            <button class="btn-proses inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold text-white cursor-pointer border-0" style="background: linear-gradient(135deg, #e11d48, #f43f5e); height: 32px; min-width: 70px; justify-content: center;">
+                                                <i class="fa-solid fa-gavel text-[10px]"></i> Proses
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <!-- Baris Disetujui -->
+                                    <tr>
+                                        <td><span class="text-sm">20 Mei 2025</span></td>
+                                        <td><span class="text-sm font-semibold" style="color: var(--text-primary);">Rizky Pratama</span></td>
+                                        <td><span class="text-sm">X IPA 2</span></td>
+                                        <td><span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background: rgba(34,197,94,0.1); color: #22c55e;">Terlambat</span></td>
+                                        <td><span class="text-sm font-bold" style="color: #f97316;">+5</span></td>
+                                        <td><span class="text-sm">Pak Andi</span></td>
+                                        <td><span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background: rgba(34,197,94,0.1); color: #22c55e;"><i class="fa-solid fa-check text-[9px] mr-1"></i>Disetujui</span></td>
+                                        <td><span class="text-sm" style="color: var(--text-muted);">—</span></td>
+                                    </tr>
+                                    <!-- Baris Menunggu -->
+                                    <tr>
+                                        <td><span class="text-sm">20 Mei 2025</span></td>
+                                        <td><span class="text-sm font-semibold" style="color: var(--text-primary);">Dewi Lestari</span></td>
+                                        <td><span class="text-sm">XII IPA 1</span></td>
+                                        <td><span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background: rgba(244,63,94,0.1); color: #f43f5e;">Membolos</span></td>
+                                        <td><span class="text-sm font-bold" style="color: #f43f5e;">+20</span></td>
+                                        <td><span class="text-sm">Bu Sari</span></td>
+                                        <td><span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background: rgba(234,179,8,0.1); color: #eab308;"><i class="fa-solid fa-clock text-[9px] mr-1"></i>Menunggu</span></td>
+                                        <td>
+                                            <button class="btn-proses inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold text-white cursor-pointer border-0" style="background: linear-gradient(135deg, #e11d48, #f43f5e); height: 32px; min-width: 70px; justify-content: center;">
+                                                <i class="fa-solid fa-gavel text-[10px]"></i> Proses
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <!-- Baris Menunggu -->
+                                    <tr>
+                                        <td><span class="text-sm">19 Mei 2025</span></td>
+                                        <td><span class="text-sm font-semibold" style="color: var(--text-primary);">Fajar Hidayat</span></td>
+                                        <td><span class="text-sm">XI IPA 2</span></td>
+                                        <td><span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background: rgba(234,179,8,0.1); color: #eab308;">Keributan</span></td>
+                                        <td><span class="text-sm font-bold" style="color: #f97316;">+10</span></td>
+                                        <td><span class="text-sm">Pak Budi</span></td>
+                                        <td><span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background: rgba(234,179,8,0.1); color: #eab308;"><i class="fa-solid fa-clock text-[9px] mr-1"></i>Menunggu</span></td>
+                                        <td>
+                                            <button class="btn-proses inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold text-white cursor-pointer border-0" style="background: linear-gradient(135deg, #e11d48, #f43f5e); height: 32px; min-width: 70px; justify-content: center;">
+                                                <i class="fa-solid fa-gavel text-[10px]"></i> Proses
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <!-- Baris Ditolak -->
+                                    <tr>
+                                        <td><span class="text-sm">19 Mei 2025</span></td>
+                                        <td><span class="text-sm font-semibold" style="color: var(--text-primary);">Rina Wati</span></td>
+                                        <td><span class="text-sm">X IPA 1</span></td>
+                                        <td><span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background: rgba(34,197,94,0.1); color: #22c55e;">Seragam</span></td>
+                                        <td><span class="text-sm font-bold" style="color: #f97316;">+10</span></td>
+                                        <td><span class="text-sm">Pak Andi</span></td>
+                                        <td><span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background: rgba(239,68,68,0.1); color: #ef4444;"><i class="fa-solid fa-xmark text-[9px] mr-1"></i>Ditolak</span></td>
+                                        <td><span class="text-sm" style="color: var(--text-muted);">—</span></td>
+                                    </tr>
+                                    <!-- Baris Menunggu -->
+                                    <tr>
+                                        <td><span class="text-sm">18 Mei 2025</span></td>
+                                        <td><span class="text-sm font-semibold" style="color: var(--text-primary);">Budi Santoso</span></td>
+                                        <td><span class="text-sm">XII IPA 2</span></td>
+                                        <td><span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background: rgba(34,197,94,0.1); color: #22c55e;">Tugas</span></td>
+                                        <td><span class="text-sm font-bold" style="color: #f97316;">+5</span></td>
+                                        <td><span class="text-sm">Bu Sari</span></td>
+                                        <td><span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background: rgba(234,179,8,0.1); color: #eab308;"><i class="fa-solid fa-clock text-[9px] mr-1"></i>Menunggu</span></td>
+                                        <td>
+                                            <button class="btn-proses inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold text-white cursor-pointer border-0" style="background: linear-gradient(135deg, #e11d48, #f43f5e); height: 32px; min-width: 70px; justify-content: center;">
+                                                <i class="fa-solid fa-gavel text-[10px]"></i> Proses
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+
+        <!-- ===== BOTTOM NAVIGATION (Mobile) ===== -->
+        <nav class="bottom-nav fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around border-t" style="background: var(--sidebar-bg); border-color: var(--border); height: 64px;">
+            <a href="#" class="bottom-nav-item bottom-nav-active relative flex flex-col items-center justify-center gap-0.5 flex-1 h-full">
+                <span class="text-lg leading-none">🏠</span>
+                <span class="text-[10px] font-semibold">Dashboard</span>
+            </a>
+            <a href="#" class="bottom-nav-item relative flex flex-col items-center justify-center gap-0.5 flex-1 h-full" style="color: var(--text-muted);">
+                <span class="text-lg leading-none">✅</span>
+                <span class="text-[10px] font-medium">Persetujuan</span>
+                <span class="absolute top-2 right-1/2 translate-x-3 w-2 h-2 rounded-full bg-yellow-500"></span>
+            </a>
+            <a href="#" class="bottom-nav-item relative flex flex-col items-center justify-center gap-0.5 flex-1 h-full" style="color: var(--text-muted);">
+                <span class="text-lg leading-none">🚨</span>
+                <span class="text-[10px] font-medium">Wajib BK</span>
+                <span class="absolute top-2 right-1/2 translate-x-3 w-2 h-2 rounded-full bg-rose-500"></span>
+            </a>
+            <a href="#" class="bottom-nav-item relative flex flex-col items-center justify-center gap-0.5 flex-1 h-full" style="color: var(--text-muted);">
+                <span class="text-lg leading-none">👤</span>
+                <span class="text-[10px] font-medium">Siswa</span>
+            </a>
+            <a href="#" class="bottom-nav-item relative flex flex-col items-center justify-center gap-0.5 flex-1 h-full" style="color: var(--text-muted);">
+                <span class="text-lg leading-none">⚙️</span>
+                <span class="text-[10px] font-medium">Pengaturan</span>
+            </a>
+        </nav>
+{% endblock content %}

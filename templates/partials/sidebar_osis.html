@@ -1,0 +1,88 @@
+    <input type="checkbox" id="mode-toggle" class="hidden" aria-hidden="true">
+
+    <div class="page-wrapper min-h-screen relative" style="background: var(--bg);">
+
+        <!-- Dekorasi latar -->
+        <div class="bg-glow pointer-events-none fixed top-[-100px] left-[-100px] w-[400px] h-[400px] rounded-full z-0" style="background: radial-gradient(circle, rgba(245,158,11,0.04) 0%, transparent 70%);"></div>
+        <div class="bg-glow pointer-events-none fixed bottom-[-80px] right-[-80px] w-[350px] h-[350px] rounded-full z-0" style="background: radial-gradient(circle, rgba(245,158,11,0.03) 0%, transparent 70%); animation-delay: -5s;"></div>
+
+        <!-- ===== NAVBAR ===== -->
+        <header class="sticky top-0 z-30 border-b" style="background: var(--navbar-bg); border-color: var(--border); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+            <div class="flex items-center justify-between h-16 px-4 md:px-6 max-w-7xl mx-auto">
+
+                <!-- Kiri (Desktop): info user + logout + toggle -->
+                <div class="hidden md:flex items-center gap-4">
+                    <!-- Avatar -->
+                    {% if user.is_authenticated %}
+                        {% if user.profile.foto %}
+                            <img src="{{ user.profile.foto.url }}" alt="{{ user.get_full_name|default:user.username }}" class="w-10 h-10 rounded-full flex-shrink-0 object-cover" />
+                        {% elif user.foto %}
+                            <img src="{{ user.foto.url }}" alt="{{ user.get_full_name|default:user.username }}" class="w-10 h-10 rounded-full flex-shrink-0 object-cover" />
+                        {% else %}
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0" style="background: linear-gradient(135deg, #d97706, #f59e0b);">{{ user.get_full_name|default:user.username|slice:":2"|upper }}</div>
+                        {% endif %}
+                    {% else %}
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0" style="background: linear-gradient(135deg, #d97706, #f59e0b);">R</div>
+                    {% endif %}
+                    <!-- Info -->
+                    <div class="min-w-0">
+                        <p class="text-sm font-semibold leading-tight truncate" style="color: var(--text-primary);">{% if user.is_authenticated %}{{ user.get_full_name|default:user.username }}{% else %}Tamu{% endif %}</p>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold mt-0.5" style="background: rgba(245,158,11,0.12); color: #fbbf24;">OSIS</span>
+                    </div>
+                    <!-- Tombol Logout -->
+                    <a href="{% url 'logout' %}" class="btn-logout flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer border" style="background: transparent; border-color: var(--border); color: var(--text-muted); height: 38px;"
+                        onmouseover="this.style.color='var(--text-primary)'"
+                        onmouseout="this.style.color='var(--text-muted)'">
+                        <i class="fa-solid fa-right-from-bracket text-[11px]"></i> Keluar
+                    </a>
+                    <!-- Toggle Mode -->
+                    <label for="mode-toggle" class="relative cursor-pointer flex items-center" aria-label="Ganti tema tampilan">
+                        <div class="relative w-[48px] h-[26px] rounded-full transition-colors duration-300 shadow-inner" style="background: var(--border);">
+                            <span class="toggle-thumb absolute top-[3px] left-[3px] w-5 h-5 rounded-full z-10 flex items-center justify-center shadow-md" style="background: linear-gradient(135deg, #d97706, #f59e0b);">
+                                <span class="thumb-moon text-[10px] leading-none">🌙</span>
+                                <span class="thumb-sun text-[10px] leading-none">☀️</span>
+                            </span>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Kiri (Mobile): nama aplikasi -->
+                <div class="flex md:hidden items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, #d97706, #f59e0b);">
+                        <i class="fa-solid fa-shield-halved text-white text-xs"></i>
+                    </div>
+                    <span class="text-base font-extrabold tracking-tight" style="color: var(--text-primary);">V-Track</span>
+                </div>
+
+                <!-- Kanan (Desktop): logo V-Track -->
+                <div class="hidden md:flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, #d97706, #f59e0b);">
+                        <i class="fa-solid fa-shield-halved text-white text-sm"></i>
+                    </div>
+                    <span class="text-lg font-extrabold tracking-tight" style="color: var(--text-primary);">V-Track</span>
+                </div>
+
+                <!-- Kanan (Mobile): toggle + avatar -->
+                <div class="flex md:hidden items-center gap-2">
+                    <label for="mode-toggle" class="relative cursor-pointer flex items-center" aria-label="Ganti tema tampilan">
+                        <div class="relative w-[44px] h-[24px] rounded-full transition-colors duration-300 shadow-inner" style="background: var(--border);">
+                            <span class="toggle-thumb absolute top-[3px] left-[3px] w-[18px] h-[18px] rounded-full z-10 flex items-center justify-center shadow-md" style="background: linear-gradient(135deg, #d97706, #f59e0b);">
+                                <span class="thumb-moon text-[9px] leading-none">🌙</span>
+                                <span class="thumb-sun text-[9px] leading-none">☀️</span>
+                            </span>
+                        </div>
+                    </label>
+                    {% if user.is_authenticated %}
+                        {% if user.profile.foto %}
+                            <img src="{{ user.profile.foto.url }}" alt="{{ user.get_full_name|default:user.username }}" class="w-9 h-9 rounded-full flex-shrink-0 object-cover" />
+                        {% elif user.foto %}
+                            <img src="{{ user.foto.url }}" alt="{{ user.get_full_name|default:user.username }}" class="w-9 h-9 rounded-full flex-shrink-0 object-cover" />
+                        {% else %}
+                            <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background: linear-gradient(135deg, #d97706, #f59e0b);">{{ user.get_full_name|default:user.username|slice:":1"|upper }}</div>
+                        {% endif %}
+                    {% else %}
+                        <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background: linear-gradient(135deg, #d97706, #f59e0b);">R</div>
+                    {% endif %}
+                </div>
+            </div>
+        </header>

@@ -1,0 +1,457 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah User Baru - V-Track</title>
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --border: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --navbar-bg: rgba(15,23,42,0.85);
+            --input-bg: #0f172a;
+            --hover-bg: rgba(99,102,241,0.08);
+        }
+        #mode-toggle:checked ~ .page-wrapper {
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --border: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #334155;
+            --text-muted: #64748b;
+            --navbar-bg: rgba(248,250,252,0.85);
+            --input-bg: #f1f5f9;
+            --hover-bg: rgba(99,102,241,0.06);
+        }
+        body { font-family: 'Inter', system-ui, sans-serif; margin: 0; }
+        a { text-decoration: none; color: inherit; }
+
+        /* ===== MODE TOGGLE ===== */
+        .toggle-thumb { transition: left 0.3s cubic-bezier(0.4,0,0.2,1); }
+        #mode-toggle:checked ~ .page-wrapper .toggle-thumb { left: 29px; }
+        .thumb-sun { display: none; }
+        #mode-toggle:checked ~ .page-wrapper .thumb-sun { display: block; }
+        .thumb-moon { display: block; }
+        #mode-toggle:checked ~ .page-wrapper .thumb-moon { display: none; }
+
+        /* ===== GLOW ===== */
+        @keyframes glow-pulse {
+            0%, 100% { opacity: 0.4; transform: translate(0,0) scale(1); }
+            50% { opacity: 0.7; transform: translate(0,0) scale(1.05); }
+        }
+        .bg-glow { animation: glow-pulse 8s ease-in-out infinite; }
+
+        /* ===== NAVBAR ===== */
+        .back-btn { transition: background 0.15s, color 0.15s; }
+        .back-btn:hover { background: var(--hover-bg); color: var(--text-primary); }
+        .icon-btn { transition: background 0.15s, color 0.15s; color: var(--text-muted); }
+        .icon-btn:hover { background: var(--hover-bg); color: var(--text-primary); }
+
+        /* ===== INPUT ===== */
+        .input-field {
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            height: 2.75rem;
+            padding: 0 1rem;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            width: 100%;
+        }
+        .input-field::placeholder { color: var(--text-muted); }
+        .input-field:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+        }
+        /* Error state */
+        .input-error {
+            border-color: #ef4444 !important;
+        }
+        .input-error:focus {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239,68,68,0.15) !important;
+        }
+        .error-text {
+            color: #ef4444;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+        .helper-text {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+
+        /* ===== LABEL ===== */
+        .field-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 0.375rem;
+        }
+        .required-star { color: #ef4444; margin-left: 1px; }
+
+        /* ===== ROLE CARDS ===== */
+        .role-option {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            padding: 0.625rem 0.875rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: border-color 0.15s, background 0.15s;
+            background: transparent;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        .role-option:hover { background: var(--hover-bg); }
+        #role-admin:checked ~ .form-card .ro-admin,
+        #role-guru:checked ~ .form-card .ro-guru,
+        #role-osis:checked ~ .form-card .ro-osis,
+        #role-bk:checked ~ .form-card .ro-bk {
+            border-color: #6366f1;
+            background: rgba(99,102,241,0.08);
+            color: var(--text-primary);
+        }
+
+        /* ===== STATUS TOGGLE ===== */
+        .status-track {
+            width: 48px;
+            height: 26px;
+            border-radius: 9999px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+            flex-shrink: 0;
+            background: var(--border);
+        }
+        #status-toggle:checked ~ .form-card .status-track {
+            background: #22c55e;
+        }
+        .status-knob {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            border-radius: 9999px;
+            background: #ffffff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            transition: left 0.3s cubic-bezier(0.4,0,0.2,1);
+        }
+        #status-toggle:checked ~ .form-card .status-knob {
+            left: 25px;
+        }
+        .status-on { display: none; }
+        .status-off { display: inline; }
+        #status-toggle:checked ~ .form-card .status-on { display: inline; }
+        #status-toggle:checked ~ .form-card .status-off { display: none; }
+
+        /* ===== UPLOAD AREA ===== */
+        .upload-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.375rem;
+            padding: 1.5rem 1rem;
+            border: 2px dashed var(--border);
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: border-color 0.15s, background 0.15s;
+            background: transparent;
+        }
+        .upload-box:hover {
+            border-color: #6366f1;
+            background: var(--hover-bg);
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn-indigo {
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: #ffffff;
+            transition: opacity 0.15s, transform 0.15s, box-shadow 0.15s;
+        }
+        .btn-indigo:hover {
+            opacity: 0.92;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px -3px rgba(99,102,241,0.4);
+        }
+        .btn-outline {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            transition: background 0.15s, color 0.15s, border-color 0.15s;
+        }
+        .btn-outline:hover {
+            background: var(--hover-bg);
+            color: var(--text-primary);
+            border-color: var(--text-muted);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <input type="checkbox" id="mode-toggle" class="hidden" aria-hidden="true">
+
+    <div class="page-wrapper min-h-screen relative" style="background: var(--bg);">
+
+        <div class="bg-glow pointer-events-none fixed top-[-200px] right-[-200px] w-[550px] h-[550px] rounded-full z-0"
+             style="background: radial-gradient(circle, rgba(99,102,241,0.045) 0%, transparent 70%);"></div>
+        <div class="bg-glow pointer-events-none fixed bottom-[-150px] left-[-150px] w-[400px] h-[400px] rounded-full z-0"
+             style="background: radial-gradient(circle, rgba(99,102,241,0.03) 0%, transparent 70%); animation-delay: -4s;"></div>
+
+        <!-- ===== NAVBAR ===== -->
+        <header class="sticky top-0 z-20 flex items-center justify-between px-4 md:px-6 border-b"
+                style="background: var(--navbar-bg); border-color: var(--border); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); height: 64px;">
+            <div class="flex items-center gap-3">
+                <a href="{% url 'account:kelola_user' %}" class="back-btn h-11 flex items-center gap-2 px-3 rounded-lg"
+                   style="color: var(--text-muted);" aria-label="Kembali">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                    <span class="text-sm font-medium">Kembali</span>
+                </a>
+                <h1 class="text-lg font-bold" style="color: var(--text-primary);">Tambah User Baru</h1>
+            </div>
+            <div class="flex items-center gap-2">
+                <label for="mode-toggle"
+                       class="relative cursor-pointer flex items-center ml-1"
+                       aria-label="Ganti tema tampilan">
+                    <div class="relative w-[56px] h-[30px] rounded-full transition-colors duration-300 shadow-inner"
+                         style="background: var(--border);">
+                        <span class="toggle-thumb absolute top-[3px] left-[3px] w-6 h-6 rounded-full z-10 flex items-center justify-center shadow-md"
+                              style="background: linear-gradient(135deg, #4f46e5, #818cf8);">
+                            <span class="thumb-moon text-[11px] leading-none">🌙</span>
+                            <span class="thumb-sun text-[11px] leading-none">☀️</span>
+                        </span>
+                    </div>
+                </label>
+            </div>
+        </header>
+
+        <!-- ===== KONTEN ===== -->
+        <main class="relative z-10 p-4 md:p-6 lg:p-8 max-w-4xl mx-auto">
+
+            <!-- Hidden inputs untuk CSS hacks (siblings dari .form-card) -->
+            <input type="radio" name="role" id="role-admin" class="hidden" aria-hidden="true">
+            <input type="radio" name="role" id="role-guru" class="hidden" aria-hidden="true">
+            <input type="radio" name="role" id="role-osis" class="hidden" aria-hidden="true">
+            <input type="radio" name="role" id="role-bk" class="hidden" aria-hidden="true">
+            <input type="checkbox" id="status-toggle" checked class="hidden" aria-hidden="true">
+
+            <!-- ===== CARD FORM ===== -->
+            <div class="form-card rounded-xl border p-5 md:p-8" style="background: var(--card); border-color: var(--border);">
+
+                <form onsubmit="return false;">
+
+                    <!-- Dua kolom -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
+
+                        <!-- ========================
+                             KOLOM KIRI
+                             ======================== -->
+                        <div class="space-y-5">
+
+                            <!-- Nama Depan -->
+                            <div>
+                                <label for="nama-depan" class="field-label">
+                                    Nama Depan <span class="required-star">*</span>
+                                </label>
+                                <input type="text" id="nama-depan" name="nama_depan" required
+                                       class="input-field" placeholder="Masukkan nama depan">
+                            </div>
+
+                            <!-- Nama Belakang -->
+                            <div>
+                                <label for="nama-belakang" class="field-label">
+                                    Nama Belakang <span class="required-star">*</span>
+                                </label>
+                                <input type="text" id="nama-belakang" name="nama_belakang" required
+                                       class="input-field" placeholder="Masukkan nama belakang">
+                            </div>
+
+                            <!-- Username -->
+                            <div>
+                                <label for="username" class="field-label">
+                                    Username <span class="required-star">*</span>
+                                </label>
+                                <input type="text" id="username" name="username" required
+                                       class="input-field" placeholder="Masukkan username">
+                                <p class="helper-text">Digunakan untuk login</p>
+                            </div>
+
+                            <!-- Email -->
+                            <div>
+                                <label for="email" class="field-label">Email</label>
+                                <input type="email" id="email" name="email"
+                                       class="input-field" placeholder="contoh@email.com">
+                            </div>
+
+                            <!-- No Telepon -->
+                            <div>
+                                <label for="telepon" class="field-label">No Telepon</label>
+                                <input type="tel" id="telepon" name="telepon"
+                                       class="input-field" placeholder="08xxxxxxxxxx">
+                            </div>
+
+                        </div>
+
+                        <!-- ========================
+                             KOLOM KANAN
+                             ======================== -->
+                        <div class="space-y-5">
+
+                            <!-- Password -->
+                            <div>
+                                <label for="password" class="field-label">
+                                    Password <span class="required-star">*</span>
+                                </label>
+                                <input type="password" id="password" name="password" required
+                                       class="input-field" placeholder="Masukkan password">
+                            </div>
+
+                            <!-- Konfirmasi Password (demo error state) -->
+                            <div>
+                                <label for="konfirmasi-password" class="field-label">
+                                    Konfirmasi Password <span class="required-star">*</span>
+                                </label>
+                                <input type="password" id="konfirmasi-password" name="konfirmasi_password" required
+                                       class="input-field input-error" placeholder="Ulangi password">
+                                <p class="error-text">Password tidak cocok <span style="opacity:0.6;">(demo)</span></p>
+                            </div>
+
+                            <!-- Role -->
+                            <div>
+                                <label class="field-label">
+                                    Pilih Role <span class="required-star">*</span>
+                                </label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <label for="role-admin" class="role-option ro-admin">
+                                        <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background: #ef4444;"></span>
+                                        <span>Admin</span>
+                                    </label>
+                                    <label for="role-guru" class="role-option ro-guru">
+                                        <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background: #3b82f6;"></span>
+                                        <span>Guru</span>
+                                    </label>
+                                    <label for="role-osis" class="role-option ro-osis">
+                                        <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background: #8b5cf6;"></span>
+                                        <span>OSIS</span>
+                                    </label>
+                                    <label for="role-bk" class="role-option ro-bk">
+                                        <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background: #f97316;"></span>
+                                        <span>BK</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Status Aktif -->
+                            <div>
+                                <label class="field-label">Status Aktif</label>
+                                <div class="flex items-center gap-3 mt-1">
+                                    <label for="status-toggle" class="status-track" aria-label="Status aktif">
+                                        <span class="status-knob"></span>
+                                    </label>
+                                    <span class="text-sm font-medium status-on" style="color: #22c55e;">Aktif</span>
+                                    <span class="text-sm font-medium status-off" style="color: var(--text-muted);">Nonaktif</span>
+                                </div>
+                            </div>
+
+                            <!-- Foto Profil -->
+                            <div>
+                                <label class="field-label">Foto Profil</label>
+                                <label for="foto-input" class="upload-block">
+                                    <input type="file" id="foto-input" class="hidden" accept=".jpg,.jpeg,.png" aria-hidden="true">
+                                    <div class="upload-box">
+                                        <i class="fa-solid fa-camera text-2xl" style="color: var(--text-muted);"></i>
+                                        <p class="text-sm font-medium" style="color: var(--text-secondary);">Klik untuk upload foto</p>
+                                        <p class="text-xs" style="color: var(--text-muted);">Format: JPG, PNG. Maks: 2MB</p>
+                                    </div>
+                                </label>
+                                <!-- Preview foto (tersembunyi, muncul saat ada file) -->
+                                <div class="hidden mt-2" aria-hidden="true" style="display: none;">
+                                    <div class="flex items-center gap-3 p-2.5 rounded-lg border" style="border-color: var(--border);">
+                                        <div class="w-12 h-12 rounded-full flex-shrink-0" style="background: var(--input-bg);"></div>
+                                        <div class="min-w-0 flex-1">
+                                            <p class="text-sm font-medium truncate" style="color: var(--text-primary);">nama-file.jpg</p>
+                                            <p class="text-xs" style="color: var(--text-muted);">245 KB</p>
+                                        </div>
+                                        <button type="button" class="icon-btn w-9 h-9 rounded-lg flex items-center justify-center" aria-label="Hapus foto">
+                                            <i class="fa-solid fa-xmark text-sm"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- ========================
+                         TOMBOL BAWAH
+                         ======================== -->
+                    <div class="flex flex-col sm:flex-row sm:justify-end gap-3 mt-8 pt-6" style="border-top: 1px solid var(--border);">
+                        <button type="button"
+                                class="btn-outline h-11 px-5 rounded-lg text-sm font-semibold cursor-pointer order-2 sm:order-1 w-full sm:w-auto">
+                            Batal
+                        </button>
+                        <button type="submit"
+                                class="btn-indigo h-11 px-5 rounded-lg text-sm font-semibold cursor-pointer order-1 sm:order-2 w-full sm:w-1/2 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-floppy-disk text-xs"></i>
+                            Simpan User
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+
+            <!-- ========================
+                 REFERENSI VALIDASI (tersembunyi)
+                 ======================== -->
+            <div style="display: none;" aria-hidden="true">
+                <div style="margin-top: 1.5rem; padding: 1rem; border: 1px dashed var(--border); border-radius: 0.75rem;">
+                    <p style="font-size: 0.6875rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem;">
+                        Referensi: State Validasi Input
+                    </p>
+
+                    <!-- Normal state -->
+                    <p style="font-size: 0.625rem; color: var(--text-muted); margin-bottom: 0.25rem;">Normal (default):</p>
+                    <input type="text" value="Input normal" class="input-field" style="margin-bottom: 0.75rem;" readonly>
+
+                    <!-- Focus state -->
+                    <p style="font-size: 0.625rem; color: var(--text-muted); margin-bottom: 0.25rem;">Focus (ring indigo):</p>
+                    <input type="text" value="Input focus" class="input-field" style="border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.15); margin-bottom: 0.75rem;" readonly>
+
+                    <!-- Error state -->
+                    <p style="font-size: 0.625rem; color: var(--text-muted); margin-bottom: 0.25rem;">Error (border merah + teks error):</p>
+                    <input type="text" value="Input error" class="input-field input-error" style="margin-bottom: 0.25rem;" readonly>
+                    <p class="error-text">Pesan error di sini</p>
+
+                    <p style="font-size: 0.5625rem; color: var(--text-muted); margin-top: 0.75rem; line-height: 1.6;">
+                        Cara pakai: Tambahkan class <code>input-error</code> pada input untuk border merah.<br>
+                        Tambahkan elemen &lt;p class="error-text"&gt; di bawah input untuk teks error.<br>
+                        Hapus class <code>input-error</code> dan elemen error saat input valid.
+                    </p>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+</body>
+</html>

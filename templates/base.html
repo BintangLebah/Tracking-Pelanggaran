@@ -1,0 +1,84 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    <link rel="stylesheet" href="{% static 'css/admin.css' %}">
+    <link rel="stylesheet" href="{% static 'css/walikelas.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bk.css' %}">
+    <link rel="stylesheet" href="{% static 'css/osis.css' %}">
+    <link rel="stylesheet" href="{% static 'css/guru.css' %}">
+    <link rel="stylesheet" href="{% static 'css/academics.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>{% block title %}V-Track{% endblock %}</title>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="antialiased">
+  <!-- ===== CHECKBOX TERSEMBUNYI ===== -->
+  <input type="checkbox" id="mode-toggle" class="hidden" aria-hidden="true">
+  <input type="checkbox" id="sidebar-toggle" class="hidden" aria-hidden="true">
+  <input type="checkbox" id="drawer-toggle" class="hidden" aria-hidden="true">
+
+  <script>
+    // Ensure default theme is DARK site-wide. 'vtrack_mode_checked' = '1' means light-mode (checked); default unset -> dark.
+    (function(){
+      try {
+        var key = 'vtrack_mode_checked';
+        var saved = localStorage.getItem(key);
+        if (saved === null) {
+          // default to dark
+          localStorage.setItem(key, '0');
+          saved = '0';
+        }
+        var modeToggle = document.getElementById('mode-toggle');
+        if (modeToggle) {
+          modeToggle.checked = (saved === '1');
+          try { var evt = document.createEvent('HTMLEvents'); evt.initEvent('change', true, true); modeToggle.dispatchEvent(evt); } catch(e){}
+        } else if (saved === '1') {
+          document.body.classList.add('light-mode');
+        }
+      } catch(e){}
+    })();
+  </script>
+
+  <!-- ===== PAGE WRAPPER ===== -->
+  <div class="page-wrapper min-h-screen relative" style="background: var(--bg);">
+    <div class="bg-glow pointer-events-none fixed top-[-200px] right-[-200px] w-[550px] h-[550px] rounded-full z-0" style="background: radial-gradient(circle, rgba(99,102,241,0.045) 0%, transparent 70%);"></div>
+    <div class="bg-glow pointer-events-none fixed bottom-[-150px] left-[-150px] w-[400px] h-[400px] rounded-full z-0" style="background: radial-gradient(circle, rgba(99,102,241,0.03) 0%, transparent 70%); animation-delay: -4s;"></div>
+
+  <!-- SIDEBAR RENDERING -->
+  {% block sidebar %}
+    {% if user.is_authenticated %}
+      {% if is_admin %}
+        {% include 'partials/sidebar_admin.html' %}
+      {% elif is_guru %}
+        {% if is_wali_kelas %}
+          {% include 'partials/sidebar_walikelas.html' %}
+        {% else %}
+          {% include 'partials/sidebar_guru.html' %}
+        {% endif %}
+      {% elif is_bk %}
+        {% include 'partials/sidebar_bk.html' %}
+      {% elif is_osis %}
+        {% include 'partials/sidebar_osis.html' %}
+      {% else %}
+        <div style="position:fixed;top:0;left:50%;transform:translateX(-50%);background:rgba(255,0,0,0.9);color:white;padding:15px 20px;z-index:9999;font-size:13px;border-radius:4px;margin-top:5px;">
+          ⚠️ PERINGATAN: Role user '{{ user_role }}' tidak dikenali. Sidebar tidak ditampilkan.
+        </div>
+      {% endif %}
+    {% else %}
+      <!-- User not authenticated - no sidebar -->
+    {% endif %}
+  {% endblock %}
+
+    {% block content %}
+    {% endblock content %}
+
+  </div>
+</body>
+</html>

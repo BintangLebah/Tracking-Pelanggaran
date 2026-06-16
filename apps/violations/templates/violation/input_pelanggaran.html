@@ -1,0 +1,460 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporkan Pelanggaran - V-Track</title>
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --border: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --navbar-bg: rgba(15,23,42,0.85);
+            --input-bg: #0f172a;
+            --hover-bg: rgba(16,185,129,0.08);
+        }
+        #mode-toggle:checked ~ .page-wrapper {
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --border: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #334155;
+            --text-muted: #64748b;
+            --navbar-bg: rgba(248,250,252,0.85);
+            --input-bg: #f1f5f9;
+            --hover-bg: rgba(16,185,129,0.06);
+        }
+        body { font-family: 'Inter', system-ui, sans-serif; margin: 0; }
+        a { text-decoration: none; color: inherit; }
+
+        .toggle-thumb { transition: left 0.3s cubic-bezier(0.4,0,0.2,1); }
+        #mode-toggle:checked ~ .page-wrapper .toggle-thumb { left: 29px; }
+        .thumb-sun { display: none; }
+        #mode-toggle:checked ~ .page-wrapper .thumb-sun { display: block; }
+        .thumb-moon { display: block; }
+        #mode-toggle:checked ~ .page-wrapper .thumb-moon { display: none; }
+
+        @keyframes glow-pulse {
+            0%, 100% { opacity: 0.4; transform: translate(0,0) scale(1); }
+            50% { opacity: 0.7; transform: translate(0,0) scale(1.05); }
+        }
+        .bg-glow { animation: glow-pulse 8s ease-in-out infinite; }
+
+        .back-btn { transition: background 0.15s, color 0.15s; }
+        .back-btn:hover { background: var(--hover-bg); color: var(--text-primary); }
+
+        .input-field {
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            height: 2.75rem;
+            padding-top: 0;
+            padding-right: 1rem;
+            padding-bottom: 0;
+            padding-left: 1rem;
+            width: 100%;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .input-field::placeholder { color: var(--text-muted); }
+        .input-field:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16,185,129,0.15);
+        }
+        .input-field::-webkit-calendar-picker-indicator { filter: invert(0.6); cursor: pointer; }
+        #mode-toggle:checked ~ .page-wrapper .input-field::-webkit-calendar-picker-indicator { filter: none; }
+
+        .textarea-field {
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            padding: 0.75rem 1rem;
+            width: 100%;
+            resize: vertical;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            min-height: 76px;
+        }
+        .textarea-field::placeholder { color: var(--text-muted); }
+        .textarea-field:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16,185,129,0.15);
+        }
+
+        .select-field {
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            height: 2.75rem;
+            padding-top: 0;
+            padding-right: 2.25rem;
+            padding-bottom: 0;
+            padding-left: 1rem;
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            width: 100%;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .select-field:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16,185,129,0.15);
+        }
+        .select-field option { background: var(--card); color: var(--text-primary); }
+        .select-field optgroup { color: var(--text-muted); font-weight: 600; font-size: 0.75rem; }
+
+        .field-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 0.375rem;
+        }
+        .required-star { color: #ef4444; margin-left: 1px; }
+        .helper-text { color: var(--text-muted); font-size: 0.75rem; margin-top: 0.25rem; }
+
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* ===== KONDISIONAL "LAINNYA" ===== */
+        /* Class kustom (bukan Tailwind hidden) agar bisa di-override CSS tanpa !important */
+        .lainnya-hide { display: none; }
+        #lainnya-check:checked ~ .page-wrapper .lainnya-hide { display: block; }
+
+        /* ===== UPLOAD ===== */
+        .upload-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-height: 160px;
+            border: 2px dashed var(--border);
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: border-color 0.15s, background 0.15s;
+            background: transparent;
+        }
+        .upload-box:hover { border-color: #10b981; background: var(--hover-bg); }
+
+        .upload-preview {
+            display: none;
+            position: relative;
+            border: 2px solid #10b981;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            background: var(--input-bg);
+        }
+        #has-foto:checked ~ .page-wrapper .upload-wrap .uw-hide { display: none; }
+        #has-foto:checked ~ .page-wrapper .upload-wrap .uw-show { display: block; }
+
+        .delete-foto-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 9999px;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            font-size: 0.75rem;
+            transition: background 0.15s;
+        }
+        .delete-foto-btn:hover { background: rgba(239,68,68,0.85); }
+
+        /* ===== BUTTONS ===== */
+        .btn-emerald {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: #ffffff;
+            transition: opacity 0.15s, transform 0.15s, box-shadow 0.15s;
+        }
+        .btn-emerald:hover {
+            opacity: 0.92;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px -3px rgba(16,185,129,0.4);
+        }
+        .btn-outline {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            transition: background 0.15s, color 0.15s, border-color 0.15s;
+        }
+        .btn-outline:hover {
+            background: var(--hover-bg);
+            color: var(--text-primary);
+            border-color: var(--text-muted);
+        }
+
+        /* ===== DEMO TOGGLE ===== */
+        .demo-toggle-label {
+            cursor: pointer;
+            font-size: 0.6875rem;
+            color: var(--text-muted);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            transition: color 0.15s;
+        }
+        .demo-toggle-label:hover { color: var(--text-secondary); }
+        #lainnya-check:checked ~ .page-wrapper .dtl-hide { display: none; }
+        #lainnya-check:checked ~ .page-wrapper .dtl-show { display: inline; }
+        .dtl-show { display: none; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Checkbox tersembunyi di luar page-wrapper -->
+    <input type="checkbox" id="mode-toggle" class="hidden" aria-hidden="true">
+    <input type="checkbox" id="lainnya-check" class="hidden" aria-hidden="true">
+    <input type="checkbox" id="has-foto" class="hidden" aria-hidden="true">
+
+    <div class="page-wrapper min-h-screen relative" style="background: var(--bg);">
+
+        <!-- Dekorasi latar -->
+        <div class="bg-glow pointer-events-none fixed top-[-200px] right-[-200px] w-[550px] h-[550px] rounded-full z-0"
+             style="background: radial-gradient(circle, rgba(16,185,129,0.04) 0%, transparent 70%);"></div>
+        <div class="bg-glow pointer-events-none fixed bottom-[-150px] left-[-150px] w-[400px] h-[400px] rounded-full z-0"
+             style="background: radial-gradient(circle, rgba(16,185,129,0.025) 0%, transparent 70%); animation-delay: -4s;"></div>
+
+        <!-- ===== NAVBAR ===== -->
+        <header class="sticky top-0 z-20 flex items-center justify-between px-4 md:px-6 border-b"
+                style="background: var(--navbar-bg); border-color: var(--border); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); height: 64px;">
+            <div class="flex items-center gap-3">
+                <a href="{% url 'academic:data_siswa' %}" class="back-btn h-11 flex items-center gap-2 px-3 rounded-lg"
+                   style="color: var(--text-muted);" aria-label="Kembali">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                    <span class="text-sm font-medium">Kembali</span>
+                </a>
+                <h1 class="text-lg font-bold" style="color: var(--text-primary);">Laporkan Pelanggaran</h1>
+            </div>
+            <div class="flex items-center gap-2">
+                <label for="mode-toggle"
+                       class="relative cursor-pointer flex items-center ml-1"
+                       aria-label="Ganti tema tampilan">
+                    <div class="relative w-[56px] h-[30px] rounded-full transition-colors duration-300 shadow-inner"
+                         style="background: var(--border);">
+                        <span class="toggle-thumb absolute top-[3px] left-[3px] w-6 h-6 rounded-full z-10 flex items-center justify-center shadow-md"
+                              style="background: linear-gradient(135deg, #059669, #10b981);">
+                            <span class="thumb-moon text-[11px] leading-none">🌙</span>
+                            <span class="thumb-sun text-[11px] leading-none">☀️</span>
+                        </span>
+                    </div>
+                </label>
+            </div>
+        </header>
+
+        <!-- ===== KONTEN ===== -->
+        <main class="relative z-10 p-4 md:p-6 lg:p-8">
+
+            <div class="mx-auto" style="max-width: 720px;">
+
+                <!-- ===== CARD FORM ===== -->
+                <div class="rounded-xl border p-5 md:p-8" style="background: var(--card); border-color: var(--border);">
+
+                    <form onsubmit="return false;">
+
+                        <!-- ========================
+                             SECTION 2 — DETAIL PELANGGARAN
+                             ======================== -->
+                        <div class="mb-6">
+                            <h3 class="section-title">Detail Pelanggaran</h3>
+
+                            <!-- Tanggal Kejadian -->
+                            <div class="mb-4">
+                                <label for="tgl-kejadian" class="field-label">
+                                    Tanggal Kejadian <span class="required-star">*</span>
+                                </label>
+                                <input type="date" id="tgl-kejadian" name="tgl_kejadian" class="input-field" required>
+                            </div>
+
+                            <!-- Jenis Pelanggaran -->
+                            <div class="mb-4">
+                                <label for="jenis-pelanggaran" class="field-label">
+                                    Jenis Pelanggaran <span class="required-star">*</span>
+                                </label>
+                                <div class="relative">
+                                    <select id="jenis-pelanggaran" name="jenis_pelanggaran" class="select-field" required>
+                                        <option value="" disabled selected>Pilih jenis pelanggaran</option>
+                                        <optgroup label="🟢 RINGAN">
+                                            <option>Terlambat masuk kelas</option>
+                                            <option>Tidak memakai seragam lengkap</option>
+                                            <option>Tidak mengumpulkan tugas</option>
+                                            <option>Tidur saat pelajaran berlangsung</option>
+                                        </optgroup>
+                                        <optgroup label="🟡 SEDANG">
+                                            <option>Membuat keributan di kelas</option>
+                                            <option>Berkata kasar kepada teman</option>
+                                            <option>Membuat keributan di koridor</option>
+                                            <option>Meninggalkan kelas tanpa izin</option>
+                                        </optgroup>
+                                        <optgroup label="🔴 BERAT">
+                                            <option>Membawa ponsel ke kelas</option>
+                                            <option>Membolos saat jam pelajaran</option>
+                                            <option>Berkelahi di lingkungan sekolah</option>
+                                            <option>Merusak fasilitas sekolah</option>
+                                        </optgroup>
+                                        <option value="lainnya">— Lainnya (tulis sendiri) —</option>
+                                    </select>
+                                    <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[10px] pointer-events-none" style="color: var(--text-muted);"></i>
+                                </div>
+                                <!-- Toggle demo "Lainnya" -->
+                                <label for="lainnya-check" class="demo-toggle-label inline-block mt-1.5">
+                                    <span class="dtl-hide">Tampilkan demo "Lainnya"</span>
+                                    <span class="dtl-show">Sembunyikan demo "Lainnya"</span>
+                                </label>
+                            </div>
+
+                            <!-- SECTION KONDISIONAL: Lainnya -->
+                            <div class="lainnya-hide mb-4 p-4 rounded-xl"
+                                 style="border: 1px solid rgba(245,158,11,0.35); background: rgba(245,158,11,0.05);">
+                                <div class="mb-4">
+                                    <label for="nama-lainnya" class="field-label">
+                                        Nama Jenis Pelanggaran <span class="required-star">*</span>
+                                    </label>
+                                    <input type="text" id="nama-lainnya" name="nama_lainnya"
+                                           class="input-field"
+                                           placeholder="Tulis jenis pelanggaran yang terjadi...">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="deskripsi-lainnya" class="field-label">
+                                        Deskripsi Pelanggaran <span class="required-star">*</span>
+                                    </label>
+                                    <textarea id="deskripsi-lainnya" name="deskripsi_lainnya"
+                                              class="textarea-field" rows="3"
+                                              placeholder="Jelaskan detail pelanggaran yang terjadi..."></textarea>
+                                </div>
+                                <div class="flex items-start gap-2.5 p-3 rounded-lg"
+                                     style="background: rgba(245,158,11,0.08);">
+                                    <span class="text-sm mt-px flex-shrink-0">⏳</span>
+                                    <p class="text-xs leading-relaxed" style="color: #f59e0b;">
+                                        Pelanggaran ini akan dikirim ke BK untuk penetapan poin.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Deskripsi Tambahan -->
+                            <div>
+                                <label for="deskripsi-tambahan" class="field-label">Deskripsi Tambahan</label>
+                                <textarea id="deskripsi-tambahan" name="deskripsi_tambahan"
+                                          class="textarea-field" rows="3"
+                                          placeholder="Keterangan tambahan (opsional)"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- ========================
+                             SECTION 3 — BUKTI FOTO
+                             ======================== -->
+                        <div class="mb-8">
+                            <div class="flex items-center gap-2 mb-3">
+                                <label class="field-label" style="margin-bottom: 0;">Foto Bukti</label>
+                                <span class="text-xs" style="color: var(--text-muted);">(Wajib jika pengaturan bukti aktif)</span>
+                            </div>
+
+                            <div class="upload-wrap">
+                                <!-- Default: kotak upload -->
+                                <label for="foto-input" class="uw-hide upload-box block">
+                                    <input type="file" id="foto-input" class="hidden" accept=".jpg,.jpeg,.png">
+                                    <i class="fa-solid fa-camera text-4xl" style="color: var(--text-muted);"></i>
+                                    <p class="text-sm font-medium" style="color: var(--text-secondary);">Klik atau seret foto ke sini</p>
+                                    <p class="text-xs" style="color: var(--text-muted);">Format: JPG, PNG. Ukuran maks: 5MB</p>
+                                </label>
+
+                                <!-- Preview: foto sudah dipilih -->
+                                <div class="uw-show upload-preview">
+                                    <div class="w-full flex items-center justify-center"
+                                         style="min-height: 160px; background: linear-gradient(135deg, rgba(16,185,129,0.06), rgba(16,185,129,0.02));">
+                                        <div class="text-center py-8">
+                                            <i class="fa-regular fa-image text-5xl mb-2 block" style="color: var(--text-muted); opacity: 0.35;"></i>
+                                            <p class="text-xs" style="color: var(--text-muted);">Preview foto bukti</p>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="delete-foto-btn" aria-label="Hapus foto">
+                                        ✕
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Toggle demo preview -->
+                            <label for="has-foto" class="demo-toggle-label inline-block mt-1.5">
+                                Tampilkan demo preview foto
+                            </label>
+                        </div>
+
+                        <!-- ========================
+                             TOMBOL BAWAH
+                             ======================== -->
+                        <div class="flex flex-col gap-3 pt-6" style="border-top: 1px solid var(--border);">
+                            <button type="submit"
+                                    class="btn-emerald rounded-lg text-sm font-semibold cursor-pointer flex items-center justify-center gap-2 w-full"
+                                    style="height: 48px;">
+                                <i class="fa-solid fa-paper-plane text-xs"></i>
+                                Kirim Laporan
+                            </button>
+                            <button type="button"
+                                    class="btn-outline rounded-lg text-sm font-semibold cursor-pointer flex items-center justify-center gap-2 w-full"
+                                    style="height: 44px;">
+                                Batal
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+
+            </div>
+
+            <!-- ========================
+                 REFERENSI (tersembunyi)
+                 ======================== -->
+            <div style="display: none;" aria-hidden="true">
+                <div style="margin-top: 1.5rem; padding: 1rem; border: 1px dashed var(--border); border-radius: 0.75rem; max-width: 720px; margin-left: auto; margin-right: auto;">
+                    <p style="font-size: 0.6875rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem;">
+                        Referensi Implementasi
+                    </p>
+                    <p style="font-size: 0.5625rem; color: var(--text-muted); line-height: 1.7;">
+                        <strong style="color: var(--text-secondary);">Section "Lainnya":</strong><br>
+                        Class <code>.lainnya-hide</code> digunakan sebagai pengganti Tailwind <code>hidden</code> karena Tailwind's hidden menggunakan <code>!important</code> yang tidak bisa di-override oleh selector CSS apapun.<br>
+                        Checkbox <code>#lainnya-check</code> ditempatkan di luar <code>.page-wrapper</code> sebagai sibling. Saat dicentang (simulasi "Lainnya" dipilih), selector <code>#lainnya-check:checked ~ .page-wrapper .lainnya-hide { display: block; }</code> menampilkan section.<br>
+                        Dalam produksi, JavaScript akan mendeteksi perubahan value pada select dan menambah/menghapus class pada section ini.<br><br>
+                        <strong style="color: var(--text-secondary);">Preview Foto:</strong><br>
+                        Sama seperti form Tambah Siswa — checkbox <code>#has-foto</code> mengontrol visibilitas. Saat file dipilih, JS menambahkan <code>checked</code> pada checkbox dan mengganti isi preview div dengan gambar asli.<br>
+                        Tombol ✕ menghapus preview dan mengembalikan ke state upload.<br><br>
+                        <strong style="color: var(--text-secondary);">Optgroup Select:</strong><br>
+                        Emoji pada label optgroup (🟢🟡🔴) akan tampil di sebagian besar browser. Styling optgroup sangat terbatas di CSS — warna teks dan font-weight mungkin tidak konsisten di semua browser.
+                    </p>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+</body>
+</html>

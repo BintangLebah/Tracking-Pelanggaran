@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hapus Kelas — Tracker Pelanggaran Siswa</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+          },
+          colors: {
+            danger: {
+              400: '#F87171',
+              500: '#EF4444',
+              600: '#DC2626',
+              700: '#B91C1C',
+            },
+            dark: {
+              50: '#2A2D3E',
+              100: '#232636',
+              200: '#1C1F2E',
+              300: '#161926',
+              400: '#10121C',
+              500: '#0B0D16',
+              600: '#070811',
+            },
+            txt: {
+              primary: '#E8EAF0',
+              secondary: '#8B8FA7',
+              muted: '#5C6080',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Light/Dark mode overrides: page will add either .light-mode or .dark-mode on <html> via script */
+    .light-mode .bg-dark-500 { background: #f8fafc !important; }
+    .light-mode .bg-dark-400 { background: #f3f4f6 !important; }
+    .light-mode .bg-dark-300 { background: #ffffff !important; }
+    .light-mode .bg-dark-200 { background: #ffffff !important; }
+    .light-mode .text-txt-primary { color: #0b1220 !important; }
+    .light-mode .text-txt-secondary { color: #6b7280 !important; }
+    .light-mode .text-txt-muted { color: #9ca3af !important; }
+    .light-mode .border-dark-50 { border-color: #e5e7eb !important; }
+    .light-mode .overlay-animate { background: rgba(255,255,255,0.9) !important; }
+    .light-mode .card-animate { box-shadow: 0 6px 24px rgba(2,6,23,0.06) !important; }
+    .light-mode .ambient-glow { opacity: 0.06 !important; }
+    .light-mode .input-field { background-color: #ffffff !important; color: #0b1220 !important; border-color: #e6e9ef !important; }
+    .light-mode .toast-in { background: rgba(16,185,129,0.95) !important; }
+
+    @keyframes modalOverlayIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes modalCardIn {
+      from { opacity: 0; transform: scale(0.92) translateY(16px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    @keyframes iconPulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239,68,68,0.3); }
+      50% { transform: scale(1.05); box-shadow: 0 0 24px 4px rgba(239,68,68,0.15); }
+    }
+    @keyframes shakeError {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-5px); }
+      40% { transform: translateX(5px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(-14px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes toastOut {
+      from { opacity: 1; transform: translateY(0) scale(1); }
+      to { opacity: 0; transform: translateY(-14px) scale(0.95); }
+    }
+    @keyframes redLineGlow {
+      0%, 100% { opacity: 0.7; }
+      50% { opacity: 1; }
+    }
+
+    .overlay-animate { animation: modalOverlayIn 0.25s ease-out forwards; }
+    .card-animate { animation: modalCardIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .icon-pulse { animation: iconPulse 2.5s ease-in-out infinite; }
+    .shake-error { animation: shakeError 0.4s ease-in-out; }
+    .toast-in { animation: toastIn 0.3s ease-out forwards; }
+    .toast-out { animation: toastOut 0.25s ease-in forwards; }
+    .red-line-glow { animation: redLineGlow 3s ease-in-out infinite; }
+
+    .input-field {
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+    .input-field:focus {
+      border-color: #DC2626;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+      background-color: #10121C;
+    }
+    .input-field.input-error {
+      border-color: #DC2626 !important;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15) !important;
+    }
+    .input-field.input-success {
+      border-color: #22C55E !important;
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1) !important;
+    }
+
+    /* Pola halus pada background */
+    .bg-pattern {
+      background-image:
+        radial-gradient(circle at 1px 1px, rgba(255,255,255,0.015) 1px, transparent 0);
+      background-size: 28px 28px;
+    }
+
+    /* Glow ambient di belakang card */
+    .ambient-glow {
+      position: fixed;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.08;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #2A2D3E; border-radius: 3px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .overlay-animate, .card-animate, .icon-pulse, .shake-error,
+      .toast-in, .toast-out, .red-line-glow { animation: none !important; }
+      .input-field { transition: none !important; }
+    }
+  </style>
+</head>
+<body class="font-sans antialiased">
+  <!-- Hidden mode checkbox (sinkron dengan halaman lain) -->
+  <input type="checkbox" id="mode-toggle" class="hidden" aria-hidden="true">
+  <script>
+    // Sync mode-toggle from localStorage as early as possible and notify listeners
+    (function(){
+      try {
+        var modeToggle = document.getElementById('mode-toggle');
+        var saved = localStorage.getItem('vtrack_mode_checked');
+        if (modeToggle && saved !== null) {
+          modeToggle.checked = (saved === '1');
+          try { var evt = document.createEvent('HTMLEvents'); evt.initEvent('change', true, true); modeToggle.dispatchEvent(evt); } catch(e){}
+        }
+      } catch(e){}
+    })();
+  </script>
+
+  <script>
+    // Ensure default is DARK mode and do not overwrite an existing user choice
+    (function(){
+      try {
+        var key = 'vtrack_mode_checked';
+        var saved = localStorage.getItem(key);
+        if (saved === null) {
+          localStorage.setItem(key, '0'); // 0 = dark
+          saved = '0';
+        }
+        var mt = document.getElementById('mode-toggle');
+        if (mt) {
+          mt.checked = (saved === '1');
+          try { var evt = document.createEvent('HTMLEvents'); evt.initEvent('change', true, true); mt.dispatchEvent(evt); } catch(e){}
+        }
+        if (saved === '1') {
+          document.body.classList.add('light-mode');
+        } else {
+          document.body.classList.remove('light-mode');
+        }
+      } catch(e){}
+    })();
+  </script>
+
+  <!-- Background gelap -->
+  <div class="fixed inset-0 bg-dark-500 bg-pattern overlay-animate"></div>
+
+  <!-- Glow ambient merah -->
+  <div class="ambient-glow bg-danger-500" style="top: 30%; left: 50%; transform: translate(-50%, -50%);"></div>
+
+  <!-- Overlay gelap -->
+  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm overlay-animate z-10" id="overlay"></div>
+
+  <!-- Toast container -->
+  <div id="toastContainer" class="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2"></div>
+
+  <!-- Modal konfirmasi -->
+  <div class="fixed inset-0 z-20 flex items-center justify-center p-4" data-nama-kelas="{{ kelas.nama_kelas }}">
+    <form method="post" action="{% url 'academic:hapus_kelas' %}" class="card-animate w-full max-w-md" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalDesc">
+      {% csrf_token %}
+      <input type="hidden" name="pk" value="{{ kelas.pk }}">
+      <input type="hidden" name="confirm" value="1">
+
+      <!-- Card -->
+      <div class="bg-dark-200 rounded-2xl shadow-2xl shadow-black/40 border border-dark-50/60 overflow-hidden">
+
+        <!-- Garis merah di atas card -->
+        <div class="h-1 bg-gradient-to-r from-danger-700 via-danger-500 to-danger-700 red-line-glow"></div>
+
+        <div class="px-6 pt-6 pb-2 sm:px-8 sm:pt-8">
+
+          <!-- Icon peringatan -->
+          <div class="flex justify-center mb-5">
+            <div class="relative">
+              <div class="absolute inset-0 bg-danger-500/10 rounded-full scale-[1.7]"></div>
+              <div class="relative w-16 h-16 bg-danger-500/10 border border-danger-500/30 rounded-full flex items-center justify-center icon-pulse">
+                <i class="fa-solid fa-triangle-exclamation text-danger-500 text-2xl"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Judul -->
+          <h1 id="modalTitle" class="text-xl sm:text-2xl font-extrabold text-danger-400 text-center mb-2 tracking-tight">
+            Hapus Kelas
+          </h1>
+
+          <!-- Teks peringatan -->
+          <p id="modalDesc" class="text-txt-secondary text-sm sm:text-base text-center leading-relaxed mb-5">
+            Kelas <span class="font-semibold text-txt-primary">{{ kelas.nama_kelas }}</span> beserta
+            <span class="font-semibold text-danger-400">{{ siswa_count }}</span> siswa di dalamnya akan dihapus secara permanen. Tindakan ini tidak dapat dibatalkan.
+          </p>
+
+          <!-- Instruksi -->
+          <div class="bg-dark-300/80 border border-dark-50/50 rounded-xl p-4 mb-5">
+            <p class="text-sm text-txt-secondary leading-relaxed">
+              <i class="fa-solid fa-circle-info text-txt-muted mr-1.5"></i>
+              Ketik nama kelas berikut ini untuk mengkonfirmasi penghapusan.
+            </p>
+            <!-- Kotak monospace nama kelas -->
+            <div class="mt-3 flex justify-center">
+              <code class="inline-block bg-dark-400 border border-dark-50/60 text-danger-400 font-mono text-sm sm:text-base font-semibold px-4 py-2 rounded-lg tracking-wide select-all">{{ kelas.nama_kelas }}</code>
+            </div>
+          </div>
+
+          <!-- Input confirm (satu kali) -->
+          <div class="mb-4">
+            <label for="inputPertama" class="block text-sm font-semibold text-txt-primary mb-1.5">
+              Ketik nama kelas
+            </label>
+            <input
+              type="text"
+              id="inputPertama"
+              name="confirm_name"
+              class="input-field w-full px-4 py-2.5 bg-dark-300/60 border-2 border-dark-50/70 rounded-xl text-sm text-txt-primary placeholder-txt-muted outline-none"
+              placeholder="Masukkan nama kelas..."
+              autocomplete="off"
+              spellcheck="false"
+              aria-describedby="errorPertama"
+            >
+            <p id="errorPertama" class="mt-1.5 text-xs text-danger-400 font-medium hidden" role="alert">
+              <i class="fa-solid fa-circle-xmark mr-1"></i>
+              <span></span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Footer tombol -->
+        <div class="px-6 py-5 sm:px-8 sm:py-6 bg-dark-300/50 border-t border-dark-50/40 flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-3">
+          <a id="btnBatal" href="{% url 'academic:data_kelas' %}" class="flex-1 sm:flex-none px-6 py-2.5 bg-transparent border-2 border-dark-50 text-txt-secondary font-semibold text-sm rounded-xl hover:bg-dark-50/50 hover:text-txt-primary hover:border-dark-50 active:scale-[0.97] transition-all duration-150 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-dark-50 focus-visible:ring-offset-2 focus-visible:ring-offset-dark-200" role="button">
+            <i class="fa-solid fa-arrow-left mr-2 text-xs"></i>Batal
+          </a>
+          <button id="btnHapus" class="flex-1 sm:flex-none px-6 py-2.5 bg-danger-600 text-white font-semibold text-sm rounded-xl hover:bg-danger-700 active:scale-[0.97] transition-all duration-150 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-danger-600 disabled:active:scale-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-danger-500 focus-visible:ring-offset-2 focus-visible:ring-offset-dark-200" type="submit" disabled>
+            <i class="fa-solid fa-trash-can mr-2 text-xs"></i>Hapus Kelas
+          </button>
+        </div>
+      </div>
+    </form>
+    </div>
+  </div>
+
+  <script>
+    // === Baca nama kelas langsung dari attribute di HTML, bukan dari variabel dummy ===
+    const targetNama = document.querySelector('[data-nama-kelas]').getAttribute('data-nama-kelas');
+
+    // === Referensi elemen DOM ===
+    const inputPertama = document.getElementById('inputPertama');
+    const inputKedua = document.getElementById('inputKedua');
+    const errorPertama = document.getElementById('errorPertama');
+    const errorKedua = document.getElementById('errorKedua');
+    const btnHapus = document.getElementById('btnHapus');
+    const btnBatal = document.getElementById('btnBatal');
+    const overlay = document.getElementById('overlay');
+    const toastContainer = document.getElementById('toastContainer');
+
+    // === Fungsi utilitas ===
+
+    function showError(errorEl, inputEl, pesan) {
+      errorEl.querySelector('span').textContent = pesan;
+      errorEl.classList.remove('hidden');
+      inputEl.classList.add('input-error');
+      inputEl.classList.remove('input-success');
+      inputEl.classList.remove('shake-error');
+      void inputEl.offsetWidth;
+      inputEl.classList.add('shake-error');
+    }
+
+    function hideError(errorEl, inputEl) {
+      errorEl.classList.add('hidden');
+      inputEl.classList.remove('input-error');
+    }
+
+    function markSuccess(inputEl) {
+      inputEl.classList.remove('input-error');
+      inputEl.classList.add('input-success');
+    }
+
+    function showToast(pesan, type) {
+      const toast = document.createElement('div');
+      const styles = {
+        success: { bg: 'bg-green-600/90', icon: 'fa-circle-check', border: 'border-green-500/30' },
+        error:   { bg: 'bg-danger-700/90', icon: 'fa-circle-xmark', border: 'border-danger-500/30' },
+        info:    { bg: 'bg-dark-100/90',   icon: 'fa-circle-info',  border: 'border-dark-50/50' },
+      };
+      const s = styles[type] || styles.info;
+      toast.className = `toast-in ${s.bg} ${s.border} border backdrop-blur-md text-txt-primary text-sm font-medium px-5 py-3 rounded-xl shadow-xl shadow-black/30 flex items-center gap-2.5 max-w-sm`;
+      toast.innerHTML = `<i class="fa-solid ${s.icon} text-white/80"></i><span>${pesan}</span>`;
+      toastContainer.appendChild(toast);
+      setTimeout(() => {
+        toast.classList.remove('toast-in');
+        toast.classList.add('toast-out');
+        toast.addEventListener('animationend', () => toast.remove());
+      }, 3000);
+    }
+
+    function validateInputs() {
+      const val = inputPertama.value.trim();
+      if (val.length === 0) {
+        hideError(errorPertama, inputPertama);
+        inputPertama.classList.remove('input-success');
+        btnHapus.disabled = true;
+        return false;
+      }
+      if (val !== targetNama) {
+        showError(errorPertama, inputPertama, `Nama kelas tidak cocok. Harus tepat "${targetNama}".`);
+        btnHapus.disabled = true;
+        return false;
+      }
+      hideError(errorPertama, inputPertama);
+      markSuccess(inputPertama);
+      btnHapus.disabled = false;
+      return true;
+    }
+
+    // === Event Listeners ===
+    inputPertama.addEventListener('input', () => {
+      if (inputPertama.value.trim().length === 0) {
+        hideError(errorPertama, inputPertama);
+        inputPertama.classList.remove('input-success');
+      }
+      validateInputs();
+    });
+
+    inputPertama.addEventListener('blur', () => {
+      const val = inputPertama.value.trim();
+      if (val.length > 0 && val !== targetNama) {
+        showError(errorPertama, inputPertama, `Nama kelas tidak cocok. Harus tepat "${targetNama}".`);
+        btnHapus.disabled = true;
+      }
+    });
+
+    // Jika form disubmit, pastikan validasi terpenuhi, lalu tampilkan spinner dan biarkan submit berjalan
+    const modalContainer = document.querySelector('[data-nama-kelas]');
+    const modalForm = modalContainer ? modalContainer.querySelector('form') : document.querySelector('form');
+    if (modalForm) {
+      modalForm.addEventListener('submit', function(e) {
+        if (!validateInputs()) {
+          e.preventDefault();
+          return;
+        }
+        btnHapus.disabled = true;
+        btnHapus.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2 text-xs"></i>Menghapus...';
+        // biarkan POST berjalan
+      });
+    }
+
+    btnBatal.addEventListener('click', function(e) {
+      // tampilkan toast sebentar lalu kembali ke daftar
+      e.preventDefault();
+      showToast('Penghapusan kelas dibatalkan.', 'info');
+      setTimeout(() => { window.location.href = btnBatal.href; }, 220);
+    });
+
+    overlay.addEventListener('click', () => btnBatal.click());
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') btnBatal.click();
+    });
+
+    window.addEventListener('load', () => {
+      setTimeout(() => inputPertama.focus(), 400);
+    });
+  </script>
+</body>
+</html>

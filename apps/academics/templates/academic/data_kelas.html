@@ -1,0 +1,259 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+        <!-- ===== KONTEN UTAMA ===== -->
+        <div class="main-content relative z-10 min-h-screen">
+
+            <!-- Navbar -->
+            <header class="sticky top-0 z-20 flex items-center justify-between px-4 md:px-6 border-b" style="background: var(--navbar-bg); border-color: var(--border); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); height: 64px;">
+                <div class="flex items-center gap-3">
+                    <label for="drawer-toggle" class="hamburger-btn w-11 h-11 flex items-center justify-center rounded-lg cursor-pointer md:hidden" style="color: var(--text-muted);" aria-label="Buka menu"><i class="fa-solid fa-bars text-lg"></i></label>
+                    <h1 class="hidden md:block text-lg font-bold" style="color: var(--text-primary);">Data Kelas</h1>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button class="relative w-11 h-11 flex items-center justify-center rounded-lg cursor-pointer" style="color: var(--text-muted);" aria-label="Notifikasi">
+                        <i class="fa-solid fa-bell text-base"></i>
+                        <span class="absolute top-1.5 right-1.5 w-[18px] h-[18px] rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center leading-none">5</span>
+                    </button>
+                    <label for="mode-toggle" class="relative cursor-pointer flex items-center ml-1" aria-label="Ganti tema tampilan">
+                        <div class="relative w-[56px] h-[30px] rounded-full transition-colors duration-300 shadow-inner" style="background: var(--border);">
+                            <span class="toggle-thumb absolute top-[3px] left-[3px] w-6 h-6 rounded-full z-10 flex items-center justify-center shadow-md" style="background: linear-gradient(135deg, #e11d48, #f43f5e);">
+                                <span class="thumb-moon text-[11px] leading-none">🌙</span>
+                                <span class="thumb-sun text-[11px] leading-none">☀️</span>
+                            </span>
+                        </div>
+                    </label>
+                </div>
+            </header>
+
+            <!-- ===== AREA KONTEN ===== -->
+            <main class="p-4 md:p-6 mobile-main-pad" style="padding-bottom: 5rem;">
+
+                <!-- ===========================
+                     BARIS AKSI
+                     =========================== -->
+                <div class="filter-stack flex flex-col md:flex-row items-stretch md:items-center gap-3 mb-5">
+                    <!-- Search -->
+                    <form method="get" class="relative flex-1">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-sm pointer-events-none" style="color: var(--text-muted);"></i>
+                        <input type="text" name="q" placeholder="Cari nama kelas..."
+                            class="w-full pl-10 pr-4 rounded-lg text-sm"
+                            style="background: var(--input-bg); border: 1px solid var(--border); color: var(--text-primary); height: 44px;"
+                            value="{{ q|default:'' }}">
+                    </form>
+                    <!-- Filter Tingkat -->
+                    <select class="rounded-lg text-sm font-medium cursor-pointer"
+                        style="background: var(--input-bg); border: 1px solid var(--border); color: var(--text-primary); height: 44px; min-width: 150px;">
+                        <option>Semua Tingkat</option>
+                        <option>Kelas 10</option>
+                        <option>Kelas 11</option>
+                        <option>Kelas 12</option>
+                    </select>
+                    <!-- Filter Tahun Ajaran -->
+                    <select class="rounded-lg text-sm font-medium cursor-pointer"
+                        style="background: var(--input-bg); border: 1px solid var(--border); color: var(--text-primary); height: 44px; min-width: 150px;">
+                        <option>Semua Tahun</option>
+                        <option>2023/2024</option>
+                        <option>2024/2025</option>
+                    </select>
+                    <!-- Tombol Tambah Kelas (Admin & Guru saja) -->
+                    <a href="{% url 'academic:tambah_kelas' %}" class="btn-tambah flex items-center justify-center gap-2 rounded-lg text-sm font-bold text-white cursor-pointer border-0 flex-shrink-0"
+                        style="background: linear-gradient(135deg, #4f46e5, #6366f1); height: 44px; padding: 0 18px;"
+                        onmouseover="this.style.boxShadow='0 6px 20px -4px rgba(99,102,241,0.35)';this.style.transform='translateY(-1px)' "
+                        onmouseout="this.style.boxShadow='none';this.style.transform='translateY(0)'">
+                        <i class="fa-solid fa-plus text-xs"></i> Tambah Kelas
+                    </a>
+                </div>
+
+                <!-- ===========================
+                     TABEL KELAS
+                     =========================== -->
+                <div class="rounded-xl border overflow-hidden" style="background: var(--card); border-color: var(--border);">
+                    <div class="table-wrap">
+                        <table class="w-full">
+                            <thead>
+                                <tr>
+                                    <th class="w-12 text-center">No</th>
+                                    <th>Nama Kelas</th>
+                                    <th>Tingkat</th>
+                                    <th class="hidden md:table-cell">Tahun Ajaran</th>
+                                    <th>Wali Kelas</th>
+                                    <th>Jumlah Siswa</th>
+                                    <th class="hidden md:table-cell">Akumulasi Poin</th>
+                                    <th>Siswa Wajib BK</th>
+                                    <th class="text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if kelas_list %}
+                                    {% for kelas in kelas_list %}
+                                    <tr>
+                                        <td class="text-center"><span class="text-sm font-semibold" style="color: var(--text-muted);">{{ forloop.counter }}</span></td>
+                                        <td><span class="text-sm font-semibold" style="color: var(--text-primary);">{{ kelas.nama_kelas }}</span></td>
+                                        <td>
+                                            {% if kelas.tingkat == '10' %}
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background: var(--badge-slate-bg); color: var(--badge-slate-text);">Kelas 10</span>
+                                            {% elif kelas.tingkat == '11' %}
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background: var(--badge-indigo-bg); color: var(--badge-indigo-text);">Kelas 11</span>
+                                            {% elif kelas.tingkat == '12' %}
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background: var(--badge-violet-bg); color: var(--badge-violet-text);">Kelas 12</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="hidden md:table-cell"><span class="text-sm">{{ kelas.tahun_ajaran }}</span></td>
+                                        <td><span class="text-sm">{{ kelas.wali_kelas.get_full_name|default:kelas.wali_kelas.username|default:"—" }}</span></td>
+                                        <td><span class="text-sm font-semibold" style="color: var(--text-primary);">{{ kelas.siswa.count }}</span></td>
+                                        <td class="hidden md:table-cell">
+                                            {% with total_poin=kelas.total_poin_kelas %}
+                                                {% if total_poin >= 60 %}
+                                                    <div class="flex items-center gap-2.5">
+                                                        <div class="flex-1 h-2 rounded-full overflow-hidden" style="background: rgba(244,63,94,0.12); min-width: 50px;">
+                                                            <div class="progress-fill h-full rounded-full" style="width: 73%; background: #f43f5e;"></div>
+                                                        </div>
+                                                        <span class="text-xs font-bold w-7 text-right" style="color: #f43f5e;">{{ total_poin }}</span>
+                                                    </div>
+                                                {% elif total_poin >= 30 %}
+                                                    <div class="flex items-center gap-2.5">
+                                                        <div class="flex-1 h-2 rounded-full overflow-hidden" style="background: rgba(234,179,8,0.12); min-width: 50px;">
+                                                            <div class="progress-fill h-full rounded-full" style="width: 42%; background: #eab308;"></div>
+                                                        </div>
+                                                        <span class="text-xs font-bold w-7 text-right" style="color: #eab308;">{{ total_poin }}</span>
+                                                    </div>
+                                                {% elif total_poin > 0 %}
+                                                    <div class="flex items-center gap-2.5">
+                                                        <div class="flex-1 h-2 rounded-full overflow-hidden" style="background: rgba(34,197,94,0.12); min-width: 50px;">
+                                                            <div class="progress-fill h-full rounded-full" style="width: 18%; background: #22c55e;"></div>
+                                                        </div>
+                                                        <span class="text-xs font-bold w-7 text-right" style="color: #22c55e;">{{ total_poin }}</span>
+                                                    </div>
+                                                {% else %}
+                                                    <div class="flex items-center gap-2.5">
+                                                        <div class="flex-1 h-2 rounded-full overflow-hidden" style="background: rgba(148,163,184,0.12); min-width: 50px;">
+                                                            <div class="progress-fill h-full rounded-full" style="width: 0%; background: #94a3b8;"></div>
+                                                        </div>
+                                                        <span class="text-xs font-bold w-7 text-right" style="color: #94a3b8;">0</span>
+                                                    </div>
+                                                {% endif %}
+                                            {% endwith %}
+                                        </td>
+                                        <td>
+                                            {% with wajib_bk=kelas.jumlah_siswa_wajib_bk %}
+                                                {% if wajib_bk > 0 %}
+                                                    <span class="text-sm font-bold" style="color: #f43f5e;">{{ wajib_bk }}</span>
+                                                {% else %}
+                                                    <span class="text-sm" style="color: var(--text-muted);">—</span>
+                                                {% endif %}
+                                            {% endwith %}
+                                        </td>
+                                        <td>
+                                            <div class="flex items-center justify-center gap-1.5">
+                                                <a href="{% url 'academic:data_siswa' %}?kelas={{ kelas.pk }}" class="btn-action w-9 h-9 rounded-lg flex items-center justify-center cursor-pointer border" style="background: transparent; border-color: var(--border); color: var(--text-muted);" aria-label="Detail"
+                                                    onmouseover="this.style.borderColor='#6366f1';this.style.color='#818cf8'"
+                                                    onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
+                                                    <i class="fa-solid fa-eye text-[11px]"></i>
+                                                </a>
+                                                <a href="{% url 'academic:edit_kelas' kelas.pk %}" class="btn-action w-9 h-9 rounded-lg flex items-center justify-center cursor-pointer border" style="background: transparent; border-color: var(--border); color: var(--text-muted);" aria-label="Edit"
+                                                    onmouseover="this.style.borderColor='#6366f1';this.style.color='#818cf8'"
+                                                    onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
+                                                    <i class="fa-solid fa-pen text-[11px]"></i>
+                                                </a>
+
+                                                <!-- Tombol Hapus: form POST ke backend (gunakan academic:hapus_kelas sebagai endpoint penerima POST) -->
+                                                <form method="post" action="{% url 'academic:hapus_kelas' %}" class="inline-block m-0 p-0 delete-form" data-siswa-count="{{ kelas.siswa.count }}" data-kelas-pk="{{ kelas.pk }}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="pk" value="{{ kelas.pk }}">
+                                                    <button type="submit" class="btn-action w-9 h-9 rounded-lg flex items-center justify-center cursor-pointer border text-rose-500" style="background: transparent; border-color: var(--border); color: var(--text-muted);"
+                                                        onmouseover="this.style.borderColor='#ef4444';this.style.color='#f87171'"
+                                                        onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)';"
+                                                        aria-label="Hapus">
+                                                        <i class="fa-solid fa-trash text-[11px]"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="9" class="text-center py-8">
+                                            <span class="text-sm" style="color: var(--text-muted);">Tidak ada data kelas.</span>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===========================
+                     PAGINATION
+                     =========================== -->
+                <div class="flex items-center justify-between mt-4">
+                    <span class="text-xs font-medium" style="color: var(--text-muted);">
+                        {% if kelas_list and kelas_list.paginator.count > 0 %}
+                            Menampilkan {{ kelas_list.start_index }}–{{ kelas_list.end_index }} dari {{ kelas_list.paginator.count }} data
+                        {% else %}
+                            Tidak ada data
+                        {% endif %}
+                    </span>
+                    <div class="flex items-center gap-1.5">
+                        {% if kelas_list.has_previous %}
+                            <a href="?page={{ kelas_list.previous_page_number }}{% if q %}&q={{ q|urlencode }}{% endif %}" class="page-btn" aria-label="Halaman sebelumnya">
+                                <i class="fa-solid fa-chevron-left text-[10px]"></i>
+                            </a>
+                        {% else %}
+                            <button class="page-btn page-btn-disabled" aria-label="Halaman sebelumnya" disabled>
+                                <i class="fa-solid fa-chevron-left text-[10px]"></i>
+                            </button>
+                        {% endif %}
+
+                        {% for p in kelas_list.paginator.page_range %}
+                            {% if p == kelas_list.number %}
+                                <span class="page-btn page-btn-active">{{ p }}</span>
+                            {% else %}
+                                <a class="page-btn" href="?page={{ p }}{% if q %}&q={{ q|urlencode }}{% endif %}">{{ p }}</a>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if kelas_list.has_next %}
+                            <a href="?page={{ kelas_list.next_page_number }}{% if q %}&q={{ q|urlencode }}{% endif %}" class="page-btn" aria-label="Halaman berikutnya">
+                                <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                            </a>
+                        {% else %}
+                            <button class="page-btn page-btn-disabled" aria-label="Halaman berikutnya" disabled>
+                                <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </main>
+        </div>
+
+<script>
+// Handling delete behaviour: jika ada siswa (> 0) -> redirect ke halaman konfirmasi (academic:hapus_kelas?pk=...),
+// jika tidak ada siswa (0) biarkan form submit langsung (POST) ke academic:hapus_kelas untuk diproses langsung oleh backend
+document.addEventListener('DOMContentLoaded', function() {
+  const confirmBaseUrl = "{% url 'academic:hapus_kelas' %}"; // halaman konfirmasi (template sudah ada)
+
+  document.querySelectorAll('.delete-form').forEach(function(form){
+    form.addEventListener('submit', function(e){
+      const count = parseInt(form.getAttribute('data-siswa-count') || '0', 10);
+      const pk = form.getAttribute('data-kelas-pk');
+      if (isNaN(count)) return; // fallback: allow submit
+
+      if (count > 0) {
+        // Batalkan submit dan arahkan ke halaman notifikasi/konfirmasi
+        e.preventDefault();
+        // Tambahkan query param pk agar halaman konfirmasi tahu kelas mana
+        window.location.href = confirmBaseUrl + '?pk=' + encodeURIComponent(pk);
+      } else {
+        // Biarkan submit berjalan (langsung hapus)
+      }
+    });
+  });
+});
+</script>
+
+{% endblock content %}

@@ -1,0 +1,310 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    <link rel="stylesheet" href="{% static 'css/academics.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>{{ title }}</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --border: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --sidebar-bg: #0f172a;
+            --navbar-bg: rgba(15,23,42,0.85);
+            --input-bg: #0f172a;
+            --hover-bg: rgba(99,102,241,0.08);
+            --error-border: #ef4444;
+            --error-text: #f87171;
+            --error-bg: rgba(239,68,68,0.06);
+        }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            margin: 0;
+            background: var(--bg);
+            transition: background 0.3s;
+        }
+        body.light-mode {
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --border: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #334155;
+            --text-muted: #64748b;
+            --sidebar-bg: #ffffff;
+            --navbar-bg: rgba(248,250,252,0.85);
+            --input-bg: #f1f5f9;
+            --hover-bg: rgba(99,102,241,0.06);
+            --error-bg: rgba(239,68,68,0.04);
+        }
+        a { text-decoration: none; color: inherit; }
+        input::placeholder { color: var(--input-placeholder, #64748b); }
+        input:focus, select:focus { border-color: #6366f1 !important; box-shadow: 0 0 0 3px rgba(99,102,241,0.25); outline: none; }
+        select { -webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px !important; }
+        .sidebar { width: 240px; transition: width 0.3s cubic-bezier(0.4,0,0.2,1); overflow: visible; }
+        .sidebar-nav { overflow-y: auto; overflow-x: hidden; }
+        .main-content { margin-left: 240px; transition: margin-left 0.3s cubic-bezier(0.4,0,0.2,1); background: transparent; }
+        #sidebar-toggle:checked ~ .page-wrapper .sidebar { width: 72px; }
+        #sidebar-toggle:checked ~ .page-wrapper .main-content { margin-left: 72px; }
+        #sidebar-toggle:checked ~ .page-wrapper .sidebar-nav .menu-label,
+        #sidebar-toggle:checked ~ .page-wrapper .header-text,
+        #sidebar-toggle:checked ~ .page-wrapper .footer-details,
+        #sidebar-toggle:checked ~ .page-wrapper .sidebar-nav .sidebar-badge { display: none; }
+        #sidebar-toggle:checked ~ .page-wrapper .sidebar-nav .menu-item { justify-content: center; padding-left: 0; padding-right: 0; }
+        #sidebar-toggle:checked ~ .page-wrapper .sidebar-nav .menu-icon { margin: 0; }
+        #sidebar-toggle:checked ~ .page-wrapper .footer-content { justify-content: center; }
+        .arrow-left { display: inline-flex; }
+        .arrow-right { display: none; }
+        #sidebar-toggle:checked ~ .page-wrapper .arrow-left { display: none; }
+        #sidebar-toggle:checked ~ .page-wrapper .arrow-right { display: inline-flex; }
+        .menu-active { background: rgba(99,102,241,0.12) !important; color: #818cf8 !important; border-left: 3px solid #6366f1; }
+        .menu-active .menu-icon { color: #818cf8 !important; }
+        .menu-item { transition: all 0.15s ease; }
+        .menu-item:hover { background: var(--hover-bg); }
+        .drawer-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 40; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
+        .drawer-panel { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; z-index: 50; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); overflow-y: auto; }
+        #drawer-toggle:checked ~ .page-wrapper .drawer-backdrop { opacity: 1; visibility: visible; }
+        #drawer-toggle:checked ~ .page-wrapper .drawer-panel { transform: translateX(0); }
+        .toggle-thumb { transition: left 0.3s cubic-bezier(0.4,0,0.2,1); }
+        .thumb-sun { display: none; }
+        .thumb-moon { display: block; }
+        .status-toggle { width: 44px; height: 24px; border-radius: 12px; position: relative; cursor: pointer; transition: background 0.3s ease; background: #6366f1; flex-shrink: 0; }
+        .status-toggle-dot { width: 18px; height: 18px; border-radius: 50%; background: white; position: absolute; top: 3px; left: 3px; transition: left 0.3s cubic-bezier(0.4,0,0.2,1); box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+        #status-active:checked ~ .form-card .status-toggle { background: var(--border); }
+        #status-active:checked ~ .form-card .status-toggle-dot { left: 23px; }
+        #status-active:checked ~ .form-card .status-label-off { opacity: 1; color: var(--text-muted); }
+        #status-active:checked ~ .form-card .status-label-on { opacity: 0.4; color: var(--text-muted); }
+        .bottom-nav-item { transition: color 0.15s ease; }
+        .bottom-nav-item:hover { color: var(--text-primary); }
+        .bottom-nav-active { color: #818cf8 !important; }
+        .bottom-nav-active::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 24px; height: 3px; border-radius: 0 0 4px 4px; background: #6366f1; }
+        .btn-back { transition: all 0.15s ease; }
+        .btn-back:hover { background: var(--hover-bg); }
+        .upload-area { transition: border-color 0.2s ease, background 0.2s ease; }
+        .upload-area:hover { border-color: #6366f1 !important; background: rgba(99,102,241,0.04); }
+        .btn-save { transition: all 0.2s ease; }
+        .btn-save:hover { box-shadow: 0 8px 25px -5px rgba(99,102,241,0.35); transform: translateY(-1px); }
+        .btn-cancel { transition: all 0.15s ease; }
+        .btn-cancel:hover { background: var(--hover-bg); color: var(--text-primary); }
+        @keyframes glow-pulse { 0%, 100% { opacity: 0.4; transform: translate(0,0) scale(1); } 50% { opacity: 0.7; transform: translate(0,0) scale(1.05); } }
+        .bg-glow { animation: glow-pulse 8s ease-in-out infinite; }
+        @media (min-width: 768px) {
+            .drawer-backdrop, .drawer-panel { display: none !important; }
+            .hamburger-btn { display: none !important; }
+            .bottom-nav { display: none !important; }
+            .mobile-main-pad { padding-bottom: 1.5rem !important; }
+        }
+        @media (max-width: 767px) {
+            .sidebar { display: none !important; }
+            .sidebar-arrow { display: none !important; }
+            .main-content { margin-left: 0 !important; }
+            .btn-row { flex-direction: column !important; }
+            .btn-row > * { width: 100% !important; }
+        }
+        /* Override to remove sidebar and make full width */
+        .sidebar { display: none !important; }
+        .main-content { margin-left: 0 !important; width: 100% !important; background: transparent; }
+        #sidebar-toggle { display: none !important; }
+        @media (max-width: 767px) {
+            .sidebar { display: none !important; }
+            .sidebar-arrow { display: none !important; }
+            .main-content { margin-left: 0 !important; }
+            .btn-row { flex-direction: column !important; }
+            .btn-row > * { width: 100% !important; }
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <input type="checkbox" id="mode-toggle" class="hidden" aria-hidden="true">
+    <input type="checkbox" id="drawer-toggle" class="hidden" aria-hidden="true">
+    <input type="checkbox" id="sidebar-toggle" class="hidden" aria-hidden="true">
+    
+    <!-- ===== KONTEN UTAMA ===== -->
+    <div class="main-content relative z-10 min-h-screen" style="margin-left: 0 !important; width: 100%; background: transparent;">
+    
+        <!-- Navbar -->
+        <header class="sticky top-0 z-20 flex items-center justify-between px-4 md:px-6 border-b" style="background: var(--navbar-bg); border-color: var(--border); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); height: 64px;">
+            <div class="flex items-center gap-3">
+                <label for="drawer-toggle" class="hamburger-btn w-11 h-11 flex items-center justify-center rounded-lg cursor-pointer md:hidden" style="color: var(--text-muted);" aria-label="Buka menu">
+                    <i class="fa-solid fa-bars text-lg"></i>
+                </label>
+                <a href="{% url 'academic:data_kelas' %}" class="btn-back hidden md:flex items-center gap-2 px-3 py-2 rounded-lg" style="color: var(--text-muted);">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                    <span class="text-sm font-semibold">Kembali</span>
+                </a>
+                <a href="{% url 'academic:data_kelas' %}" class="btn-back flex md:hidden items-center gap-2 px-3 py-2 rounded-lg" style="color: var(--text-muted);">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </a>
+                <h1 class="hidden md:block text-lg font-bold" style="color: var(--text-primary);">{{ title }}</h1>
+            </div>
+            <div class="flex items-center gap-2">
+                <label for="mode-toggle" class="relative cursor-pointer flex items-center" aria-label="Ganti tema tampilan">
+                    <div class="relative w-[56px] h-[30px] rounded-full transition-colors duration-300 shadow-inner" style="background: var(--border);">
+                        <span class="toggle-thumb absolute top-[3px] left-[3px] w-6 h-6 rounded-full z-10 flex items-center justify-center shadow-md" style="background: linear-gradient(135deg, #4f46e5, #818cf8);">
+                            <span class="thumb-moon text-[11px] leading-none">🌙</span>
+                            <span class="thumb-sun text-[11px] leading-none">☀️</span>
+                        </span>
+                    </div>
+                </label>
+            </div>
+        </header>
+    
+        <!-- ===== AREA KONTEN ===== -->
+        <main class="p-4 md:p-6 mobile-main-pad" style="padding-bottom: 5rem;">
+    
+            <!-- ===== FORM CARD ===== -->
+            <div class="flex items-center justify-center min-h-[calc(100vh-64px)] px-4 py-8 relative z-10">
+                <div class="form-inner w-full" style="max-width: 640px;">
+    
+                    <div class="rounded-xl border overflow-hidden" style="background: var(--card); border-color: var(--border); box-shadow: 0 20px 50px -12px rgba(0,0,0,0.2);">
+                        <!-- Accent line -->
+                        <div class="card-accent-line h-1 w-full"></div>
+    
+                        <!-- Header Card -->
+                        <div class="px-5 md:px-8 pt-6 pb-5 border-b" style="border-color: var(--border);">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style="background: linear-gradient(135deg, #4f46e5, #818cf8);">
+                                    <i class="fa-solid fa-school text-white text-base"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-base font-bold" style="color: var(--text-primary);">{{ title|default:'Form Kelas' }}</h2>
+                                    <p class="text-xs mt-0.5" style="color: var(--text-muted);">Isi data kelas ke sistem</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Body -->
+                        <form action="{{ action_url|default:'' }}" method="post" autocomplete="off" class="p-5 md:p-8">
+                            {% csrf_token %}
+                            {% if errors %}
+                            <div class="mb-4 rounded-lg" style="background: var(--error-bg); border: 1px solid #fca5a5; color: var(--error-text); padding: 16px;">
+                                {% for error in errors.values %}
+                                    <p class="text-sm">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            <div class="space-y-5">
+                            {% with form_data=form_data kelas=kelas %}
+
+                                <!-- Nama Kelas -->
+                                <div>
+                                    <label for="nama-kelas" class="block text-sm font-semibold mb-2" style="color: var(--text-secondary);">
+                                        Nama Kelas <span style="color: #f43f5e;">*</span>
+                                    </label>
+                                    <input type="text" id="nama-kelas" name="nama_kelas" placeholder="Contoh: X IPA 1" required
+                                        class="w-full px-4 rounded-lg text-sm"
+                                        style="background: var(--input-bg); border: 1px solid var(--border); color: var(--text-primary); height: 46px;"
+                                        value="{% if form_data.nama_kelas %}{{ form_data.nama_kelas }}{% elif kelas.nama_kelas %}{{ kelas.nama_kelas }}{% endif %}">
+                                </div>
+
+                                <!-- Tingkat -->
+                                <div>
+                                    <label for="tingkat" class="block text-sm font-semibold mb-2" style="color: var(--text-secondary);">
+                                        Tingkat <span style="color: #f43f5e;">*</span>
+                                    </label>
+                                    <select id="tingkat" name="tingkat" required
+                                        class="w-full px-4 rounded-lg text-sm font-medium cursor-pointer"
+                                        style="background: var(--input-bg); border: 1px solid var(--border); color: var(--text-primary); height: 46px;">
+                                        <option value="" disabled {% if not form_data.tingkat and not kelas.tingkat %}selected{% endif %} style="color: var(--text-muted);">Pilih tingkat...</option>
+                                        <option value="10" {% if form_data.tingkat == '10' or not form_data.tingkat and kelas.tingkat == '10' %}selected{% endif %}>Kelas 10</option>
+                                        <option value="11" {% if form_data.tingkat == '11' or not form_data.tingkat and kelas.tingkat == '11' %}selected{% endif %}>Kelas 11</option>
+                                        <option value="12" {% if form_data.tingkat == '12' or not form_data.tingkat and kelas.tingkat == '12' %}selected{% endif %}>Kelas 12</option>
+                                    </select>
+                                </div>
+
+                                <!-- Tahun Ajaran -->
+                                <div>
+                                    <label for="tahun-ajaran" class="block text-sm font-semibold mb-2" style="color: var(--text-secondary);">
+                                        Tahun Ajaran <span style="color: #f43f5e;">*</span>
+                                    </label>
+                                    <input type="text" id="tahun-ajaran" name="tahun_ajaran" placeholder="Contoh: 2024/2025" required
+                                        class="w-full px-4 rounded-lg text-sm"
+                                        style="background: var(--input-bg); border: 1px solid var(--border); color: var(--text-primary); height: 46px;"
+                                        value="{% if form_data.tahun_ajaran %}{{ form_data.tahun_ajaran }}{% elif kelas.tahun_ajaran %}{{ kelas.tahun_ajaran }}{% endif %}">
+                                </div>
+
+                                <!-- Wali Kelas -->
+                                <div>
+                                    <label for="wali-kelas" class="block text-sm font-semibold mb-2" style="color: var(--text-secondary);">
+                                        Wali Kelas
+                                    </label>
+                                    <select id="wali-kelas" name="wali_kelas"
+                                        class="w-full px-4 rounded-lg text-sm font-medium cursor-pointer"
+                                        style="background: var(--input-bg); border: 1px solid var(--border); color: var(--text-primary); height: 46px;">
+                                        <option value="" {% if not form_data.wali_kelas and not kelas.wali_kelas_id %}selected{% endif %} style="color: var(--text-muted);">Opsional, bisa diisi nanti...</option>
+                                        {% for wali in wali_options %}
+                                            <option value="{{ wali.pk }}" {% if form_data.wali_kelas|stringformat:'s' == wali.pk|stringformat:'s' or not form_data.wali_kelas and kelas.wali_kelas_id|stringformat:'s' == wali.pk|stringformat:'s' %}selected{% endif %}>
+                                                {{ wali.get_full_name|default:wali.username }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                    <p class="text-[11px] mt-1.5" style="color: var(--text-muted);">Opsional, bisa diisi nanti.</p>
+                                </div>
+
+                            {% endwith %}
+    
+                            <!-- ===== TOMBOL AKSI ===== -->
+                            <div class="mt-8 pt-6 border-t flex btn-row items-center gap-3 justify-end" style="border-color: var(--border);">
+                                <a href="{% url 'academic:data_kelas' %}"
+                                    class="btn-cancel flex items-center justify-center gap-2 px-5 rounded-lg text-sm font-semibold cursor-pointer border"
+                                    style="background: transparent; border-color: var(--border); color: var(--text-muted); height: 46px; min-width: 120px;"
+                                    onmouseover="this.style.background='var(--hover-bg)';this.style.color='var(--text-primary)'"
+                                    onmouseout="this.style.background='transparent';this.style.color='var(--text-muted)'">
+                                    <i class="fa-solid fa-xmark text-xs"></i> Batal
+                                </a>
+                                <button type="submit"
+                                    class="btn-save flex items-center justify-center gap-2 px-6 rounded-lg text-sm font-bold text-white cursor-pointer border-0"
+                                    style="background: linear-gradient(135deg, #4f46e5, #6366f1); height: 46px; min-width: 150px;"
+                                    onmouseover="this.style.boxShadow='0 8px 25px -5px rgba(99,102,241,0.35)';this.style.transform='translateY(-1px)'"
+                                    onmouseout="this.style.boxShadow='none';this.style.transform='translateY(0)'">
+                                    <i class="fa-solid fa-floppy-disk text-xs"></i> {{ submit_label }}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+    
+                </div>
+            </main>
+    
+        </div>
+    <script>
+        // Mode toggle: add/remove 'light-mode' class on body
+        const modeToggle = document.getElementById('mode-toggle');
+        function updateMode() {
+            if (modeToggle.checked) {
+                document.body.classList.add('light-mode');
+            } else {
+                document.body.classList.remove('light-mode');
+            }
+        }
+        modeToggle.addEventListener('change', updateMode);
+        // On page load, set mode according to toggle
+        updateMode();
+        // Toggle thumb icon
+        function updateThumb() {
+            const thumb = document.querySelector('.toggle-thumb');
+            if (!thumb) return;
+            if (modeToggle.checked) {
+                thumb.style.left = '29px';
+                thumb.querySelector('.thumb-sun').style.display = 'block';
+                thumb.querySelector('.thumb-moon').style.display = 'none';
+            } else {
+                thumb.style.left = '3px';
+                thumb.querySelector('.thumb-sun').style.display = 'none';
+                thumb.querySelector('.thumb-moon').style.display = 'block';
+            }
+        }
+        modeToggle.addEventListener('change', updateThumb);
+        updateThumb();
+    </script>
+    </body>
+    </html>

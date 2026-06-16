@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+        <!-- ===== KONTEN ===== -->
+        <main class="relative z-10 p-4 md:p-6 lg:p-8 max-w-5xl mx-auto">
+
+            <!-- TOMBOL KEMBALI -->
+            <div class="mb-5">
+                <a href="http://localhost:8000/dashboard/osis/" class="back-btn h-11 inline-flex items-center gap-2 px-3 rounded-lg"
+                   style="color: var(--text-muted);"
+                   aria-label="Kembali ke dashboard OSIS">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                    <span class="text-sm font-medium">Kembali</span>
+                </a>
+            </div>
+
+            <!-- CARD INFO KELAS / HEADER -->
+            <section class="rounded-xl border p-5 md:p-6 mb-5" style="background: var(--card); border-color: var(--border);">
+                {% if kelas %}
+                    <h2 class="text-xl md:text-2xl font-bold" style="color: var(--text-primary);">{{ kelas.nama_kelas }}</h2>
+                    <div class="grid grid-cols-3 gap-4 md:gap-6 mt-4 pt-4" style="border-top: 1px solid var(--border);">
+                        <div>
+                            <p class="info-label">Wali Kelas</p>
+                            <p class="info-value">{{ kelas.wali_kelas.get_full_name|default:"Belum ditentukan" }}</p>
+                        </div>
+                        <div>
+                            <p class="info-label">Jumlah Siswa</p>
+                            <p class="info-value">{{ students.paginator.count }} Siswa</p>
+                        </div>
+                        <div>
+                            <p class="info-label">Tahun Ajaran</p>
+                            <p class="info-value">{{ kelas.tahun_ajaran }}</p>
+                        </div>
+                    </div>
+                {% else %}
+                    <h2 class="text-xl md:text-2xl font-bold" style="color: var(--text-primary);">Daftar Siswa</h2>
+                    <p class="text-sm mt-2" style="color: var(--text-muted);">{{ error|default:"Silakan pilih kelas terlebih dahulu" }}</p>
+                {% endif %}
+            </section>
+
+            <!-- SEARCH BAR -->
+            {% if kelas %}
+            <section class="mb-4">
+                <form method="get" class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-xs pointer-events-none" style="color: var(--text-muted);"></i>
+                    <input type="text" name="q" value="{{ q|default_if_none:'' }}" placeholder="Cari nama atau NIS siswa..."
+                           class="input-field"
+                           style="padding-left: 2.5rem;">
+                </form>
+            </section>
+            {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-12">
+                <div class="mb-4">
+                    <i class="fa-solid fa-inbox text-6xl" style="color: var(--text-muted);"></i>
+                </div>
+                <p class="text-lg font-semibold" style="color: var(--text-primary);">Silakan pilih kelas</p>
+                <p class="text-sm mt-2" style="color: var(--text-muted);">Kembali ke halaman sebelumnya untuk memilih kelas siswa yang ingin dilihat.</p>
+            </div>
+            {% endif %}
+
+            <!-- TABEL SISWA -->
+            {% if kelas %}
+            <section class="rounded-xl border overflow-hidden" style="background: var(--card); border-color: var(--border);">
+                <div class="table-wrap table-wrap-osis">
+                    <table class="w-full">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">No</th>
+                                <th>Siswa</th>
+                                <th>Kelas</th>
+                                <th style="width: 190px;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for s in students %}
+                            <tr>
+                                <td style="color: var(--text-muted);">{{ forloop.counter0|add:students.start_index }}</td>
+                                <td>
+                                    <div class="flex items-center gap-3">
+                                        {% if s.foto %}
+                                            <img src="{{ s.foto.url }}" alt="{{ s.nama }}" class="avatar-sm cursor-pointer hover:opacity-80 transition-opacity" style="width: 44px; height: 44px; object-fit: cover; border-radius: 0.5rem;" onclick="openPhotoModal('{{ s.foto.url }}', '{{ s.nama }}')" />
+                                        {% else %}
+                                            <div class="avatar-sm" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 0.5rem; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; font-weight: 600; font-size: 0.75rem;">{{ s.nama|slice:":2"|upper }}</div>
+                                        {% endif %}
+                                        <div>
+                                            <p style="font-weight: 600; color: var(--text-primary); line-height: 1.3;">{{ s.nama }}</p>
+                                            <p style="font-size: 0.6875rem; color: var(--text-muted);">NIS: {{ s.nis }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{% if s.kelas %}{{ s.kelas.nama_kelas }}{% else %}-{% endif %}</td>
+                                <td>
+                                    <a href="{% url 'violation:input_pelanggaran' %}?siswa={{ s.id }}" class="btn-amber" style="height: 44px; padding: 0 0.875rem; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.375rem; white-space: nowrap; text-decoration: none; color: inherit;">
+                                        <i class="fa-solid fa-triangle-exclamation" style="font-size: 0.6875rem;"></i>
+                                        Laporkan Pelanggaran
+                                    </a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4" style="color: var(--text-muted); text-align: center; padding: 2rem;">Tidak ada siswa yang ditemukan.</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- PAGINATION -->
+            {% if students.paginator.count > 0 %}
+            <section class="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4">
+                <p class="text-xs" style="color: var(--text-muted);">Menampilkan {{ students.start_index }}–{{ students.end_index }} dari {{ students.paginator.count }} data</p>
+                <div class="flex items-center gap-1">
+                    {% if students.has_previous %}
+                        <a href="?page={{ students.previous_page_number }}{% if q %}&q={{ q }}{% endif %}" class="page-btn" aria-label="Halaman sebelumnya">
+                            <i class="fa-solid fa-chevron-left text-xs"></i>
+                        </a>
+                    {% else %}
+                        <button class="page-btn page-btn-disabled" disabled aria-label="Halaman sebelumnya">
+                            <i class="fa-solid fa-chevron-left text-xs"></i>
+                        </button>
+                    {% endif %}
+
+                    {% for num in students.paginator.page_range %}
+                        {% if num == students.number %}
+                            <span class="page-btn page-btn-active">{{ num }}</span>
+                        {% else %}
+                            <a href="?page={{ num }}{% if q %}&q={{ q }}{% endif %}" class="page-btn">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if students.has_next %}
+                        <a href="?page={{ students.next_page_number }}{% if q %}&q={{ q }}{% endif %}" class="page-btn" aria-label="Halaman berikutnya">
+                            <i class="fa-solid fa-chevron-right text-xs"></i>
+                        </a>
+                    {% else %}
+                        <button class="page-btn page-btn-disabled" disabled aria-label="Halaman berikutnya">
+                            <i class="fa-solid fa-chevron-right text-xs"></i>
+                        </button>
+                    {% endif %}
+                </div>
+            </section>
+            {% endif %}
+            {% endif %}
+
+        </main>
+    </div>
+
+    <!-- MODAL PREVIEW FOTO -->
+    <div id="photoModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 1000; padding: 1rem; align-items: center; justify-content: center;">
+        <div style="position: relative; max-width: 600px; width: 100%;">
+            <!-- Close Button -->
+            <button onclick="closePhotoModal()" style="position: absolute; top: -40px; right: 0; background: white; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
+            <!-- Image Container -->
+            <img id="modalImage" src="" alt="Preview" style="width: 100%; height: auto; border-radius: 0.75rem; box-shadow: 0 10px 40px rgba(0,0,0,0.3);" />
+            
+            <!-- Student Name -->
+            <div style="color: white; text-align: center; margin-top: 1rem; font-weight: 600;">
+                <p id="modalName"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openPhotoModal(photoUrl, studentName) {
+            const modal = document.getElementById('photoModal');
+            const modalImage = document.getElementById('modalImage');
+            const modalName = document.getElementById('modalName');
+            
+            modalImage.src = photoUrl;
+            modalName.textContent = studentName;
+            modal.style.display = 'flex';
+            
+            // Prevent body scroll
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closePhotoModal() {
+            const modal = document.getElementById('photoModal');
+            modal.style.display = 'none';
+            
+            // Enable body scroll
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Close modal when clicking outside the image
+        document.getElementById('photoModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePhotoModal();
+            }
+        });
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closePhotoModal();
+            }
+        });
+    </script>
+{% endblock content %}

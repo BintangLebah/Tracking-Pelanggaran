@@ -1,0 +1,148 @@
+        <input type="radio" name="page-kelas" id="page-kelas-1" class="hidden" checked aria-hidden="true">
+    <input type="radio" name="page-kelas" id="page-kelas-2" class="hidden" aria-hidden="true">
+
+    <aside class="sidebar fixed top-0 left-0 h-full z-30 flex flex-col border-r" style="background: var(--sidebar-bg); border-color: var(--border);">
+        <div class="flex items-center gap-3 px-5 py-5 border-b flex-shrink-0" style="border-color: var(--border);">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style="background: linear-gradient(135deg, #4f46e5, #818cf8);">
+                <i class="fa-solid fa-shield-halved text-white text-sm"></i>
+            </div>
+            <span class="header-text text-lg font-extrabold tracking-tight" style="color: var(--text-primary);">V-Track</span>
+        </div>
+        {% with ns=request.resolver_match.namespace name=request.resolver_match.url_name %}
+        <nav class="sidebar-nav flex-1 py-3 px-3 space-y-0.5">
+                <a href="{% url 'dashboards:admin' %}" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg {% if ns == 'dashboards' and name == 'admin' %}menu-active{% endif %}">
+                    <span class="menu-icon text-base w-6 text-center flex-shrink-0" style="color: var(--text-muted);">🏠</span>
+                    <span class="menu-label text-sm font-medium" style="color: var(--text-secondary);">Dashboard</span>
+                </a>
+                <a href="#" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg {% if ns == 'account' and name == 'kelola_user' %}menu-active{% endif %}">
+                    <span class="menu-icon text-base w-6 text-center flex-shrink-0" style="color: var(--text-muted);">👥</span>
+                    <span class="menu-label text-sm font-medium" style="color: var(--text-secondary);">Kelola User</span>
+                </a>
+                <a href="#" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg {% if ns == 'academic' and name == 'data_kelas' %}menu-active{% endif %}">
+                    <span class="menu-icon text-base w-6 text-center flex-shrink-0" style="color: var(--text-muted);">🏫</span>
+                    <span class="menu-label text-sm font-medium" style="color: var(--text-secondary);">Data Kelas</span>
+                </a>
+            <a href="#" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg {% if ns == 'academic' and name == 'input_pelanggaran' %}menu-active{% endif %}">
+                <span class="menu-icon text-base w-6 text-center flex-shrink-0" style="color: var(--text-muted);">⚠️</span>
+                <span class="menu-label text-sm font-medium" style="color: var(--text-secondary);">Pelanggaran</span>
+            </a>
+            <a href="#" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg {% if ns == 'academic' and name == 'wajib_bk' %}menu-active{% endif %}">
+                <span class="menu-icon text-base w-6 text-center flex-shrink-0" style="color: var(--text-muted);">🚨</span>
+                <span class="menu-label text-sm font-medium" style="color: var(--text-secondary);">Wajib BK</span>
+                <span class="sidebar-badge ml-auto w-5 h-5 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">3</span>
+            </a>
+            <a href="#" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg {% if ns == 'academic' and name == 'riwayat_laporan' %}menu-active{% endif %}">
+                <span class="menu-icon text-base w-6 text-center flex-shrink-0" style="color: var(--text-muted);">📊</span>
+                <span class="menu-label text-sm font-medium" style="color: var(--text-secondary);">History Poin</span>
+            </a>
+            <a href="#" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg {% if ns == 'accounts' and name == 'pengaturan' %}menu-active{% endif %}">
+                <span class="menu-icon text-base w-6 text-center flex-shrink-0" style="color: var(--text-muted);">⚙️</span>
+                <span class="menu-label text-sm font-medium" style="color: var(--text-secondary);">Pengaturan</span>
+            </a>
+        </nav>
+        {% endwith %}
+        <div class="flex-shrink-0 px-4 py-4 border-t" style="border-color: var(--border);">
+            <div class="footer-content flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style="background: linear-gradient(135deg, #4f46e5, #6366f1);">A</div>
+                <div class="footer-details min-w-0">
+                    <p class="text-sm font-semibold truncate" style="color: var(--text-primary);">Administrator</p>
+                    <p class="text-[11px]" style="color: var(--text-muted);">Admin</p>
+                </div>
+            </div>
+            <a href="{% url 'logout' %}" class="footer-details mt-3 w-full py-2 rounded-lg text-xs font-semibold cursor-pointer border flex items-center justify-center gap-1.5 transition-colors duration-150"
+                style="background: transparent; border-color: var(--border); color: var(--text-muted);"
+                onmouseover="this.style.background='var(--hover-bg)';this.style.color='var(--text-primary)'"
+                onmouseout="this.style.background='transparent';this.style.color='var(--text-muted)';">
+                <i class='fa-solid fa-right-from-bracket text-[11px]'></i> Keluar
+            </a>
+        </div>
+        <label for="sidebar-toggle"
+            class="sidebar-arrow absolute -right-3.5 top-1/2 -translate-y-1/2 z-40 w-7 h-7 rounded-full flex items-center justify-center cursor-pointer shadow-lg border transition-all duration-200 hover:scale-110"
+            style="background: var(--card); border-color: var(--border);"
+            aria-label="Kecilkan sidebar">
+            <i class="fa-solid fa-chevron-left text-[10px] arrow-left" style="color: var(--text-muted);"></i>
+            <i class="fa-solid fa-chevron-right text-[10px] arrow-right" style="color: var(--text-muted);"></i>
+        </label>
+    </aside>
+
+    <label for="drawer-toggle" class="drawer-backdrop cursor-pointer" aria-label="Tutup menu"></label>
+    <div class="drawer-panel flex flex-col border-r" style="background: var(--sidebar-bg); border-color: var(--border);">
+        <div class="flex items-center justify-between px-5 py-4 border-b flex-shrink-0" style="border-color: var(--border);">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, #4f46e5, #818cf8);">
+                    <i class="fa-solid fa-shield-halved text-white text-xs"></i>
+                </div>
+                <span class="text-base font-extrabold tracking-tight" style="color: var(--text-primary);">V-Track</span>
+            </div>
+            <label for="drawer-toggle" class="w-10 h-10 flex items-center justify-center rounded-lg cursor-pointer" style="color: var(--text-muted);" aria-label="Tutup menu">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </label>
+        </div>
+        {% with ns=request.resolver_match.namespace name=request.resolver_match.url_name %}
+        <nav class="flex-1 overflow-y-auto py-3 px-3 space-y-0.5">
+            {% url 'dashboards:admin' as dashboards_admin_url %}
+            {% if dashboards_admin_url %}
+                <a href="{{ dashboards_admin_url }}" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg {% if ns == 'dashboards' and name == 'admin' %}menu-active{% endif %}">
+            {% else %}
+                <a href="#" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg {% if ns == 'dashboards' and name == 'admin' %}menu-active{% endif %}">
+            {% endif %}
+                    <span class="text-base w-6 text-center flex-shrink-0">🏠</span>
+                    <span class="text-sm font-medium" style="color: var(--text-secondary);">Dashboard</span>
+                </a>
+            {% url 'account:kelola_user' as account_kelola_user_url %}
+            {% if account_kelola_user_url %}
+                <a href="{{ account_kelola_user_url }}" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg {% if ns == 'accounts' and name == 'kelola_user' %}menu-active{% endif %}">
+            {% else %}
+                <a href="#" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg {% if ns == 'accounts' and name == 'kelola_user' %}menu-active{% endif %}">
+            {% endif %}
+                    <span class="text-base w-6 text-center flex-shrink-0" style="color: var(--text-muted);">👥</span>
+                    <span class="text-sm font-medium" style="color: var(--text-secondary);">Kelola User</span>
+                </a>
+            {% url 'academic:data_kelas' as academic_data_kelas_url %}
+            {% if academic_data_kelas_url %}
+                <a href="{{ academic_data_kelas_url }}" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg {% if ns == 'academic' and name == 'data_kelas' %}menu-active{% endif %}">
+            {% else %}
+                <a href="#" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg {% if ns == 'academic' and name == 'data_kelas' %}menu-active{% endif %}">
+            {% endif %}
+                    <span class="text-base w-6 text-center flex-shrink-0" style="color: var(--text-muted);">🏫</span>
+                    <span class="text-sm font-medium" style="color: var(--text-secondary);">Data Kelas</span>
+                </a>
+            <a href="#" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg {% if ns == 'academic' and name == 'input_pelanggaran' %}menu-active{% endif %}">
+                <span class="text-base w-6 text-center flex-shrink-0" style="color: var(--text-muted);">👤</span>
+                <span class="text-sm font-medium" style="color: var(--text-secondary);">Data Siswa</span>
+            </a>
+            <a href="#" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg {% if ns == 'academic' and name == 'wajib_bk' %}menu-active{% endif %}">
+                <span class="text-base w-6 text-center flex-shrink-0" style="color: var(--text-muted);">⚠️</span>
+                <span class="text-sm font-medium" style="color: var(--text-secondary);">Pelanggaran</span>
+            </a>
+            <a href="#" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg {% if ns == 'academic' and name == 'riwayat_laporan' %}menu-active{% endif %}">
+                <span class="text-base w-6 text-center flex-shrink-0" style="color: var(--text-muted);">🚨</span>
+                <span class="text-sm font-medium" style="color: var(--text-secondary);">Wajib BK</span>
+                <span class="sidebar-badge ml-auto w-5 h-5 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">3</span>
+            </a>
+            <a href="#" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg {% if ns == 'academic' and name == 'history_poin' %}menu-active{% endif %}">
+                <span class="text-base w-6 text-center flex-shrink-0" style="color: var(--text-muted);">📊</span>
+                <span class="text-sm font-medium" style="color: var(--text-secondary);">History Poin</span>
+            </a>
+            <a href="#" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg {% if ns == 'accounts' and name == 'pengaturan' %}menu-active{% endif %}">
+                <span class="text-base w-6 text-center flex-shrink-0" style="color: var(--text-muted);">⚙️</span>
+                <span class="text-sm font-medium" style="color: var(--text-secondary);">Pengaturan</span>
+            </a>
+        </nav>
+        {% endwith %}
+        <div class="flex-shrink-0 px-4 py-4 border-t" style="border-color: var(--border);">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style="background: linear-gradient(135deg, #4f46e5, #6366f1);">A</div>
+                <div class="min-w-0">
+                    <p class="text-sm font-semibold truncate" style="color: var(--text-primary);">Administrator</p>
+                    <p class="text-[11px]" style="color: var(--text-muted);">Admin</p>
+                </div>
+            </div>
+            <a href="{% url 'logout' %}" class="mt-3 w-full py-2 rounded-lg text-xs font-semibold cursor-pointer border flex items-center justify-center gap-1.5 transition-colors duration-150"
+                style="background: transparent; border-color: var(--border); color: var(--text-muted);"
+                onmouseover="this.style.background='var(--hover-bg)';this.style.color='var(--text-primary)'"
+                onmouseout="this.style.background='transparent';this.style.color='var(--text-muted)';">
+                <i class="fa-solid fa-right-from-bracket text-[11px]"></i> Keluar
+            </a>
+        </div>
+    </div>
